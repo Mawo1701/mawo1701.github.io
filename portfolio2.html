@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Max Hartmann — IT Apprentice / Sysadmin & Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#EEF1F4;
+    --bg-panel:#FFFFFF;
+    --bg-panel-2:#F7F9FA;
+    --grid-line:rgba(22,33,44,0.055);
+    --border:#D3DAE1;
+    --border-strong:#B9C3CC;
+    --text-primary:#16212C;
+    --text-muted:#5B6B7A;
+    --text-dim:#8C99A6;
+    --accent-red:#C1472B;
+    --accent-teal:#1F7A6C;
+    --status-ok:#1F7A6C;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background-color:var(--bg-base);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--text-primary);
+    font-family:var(--font-display);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--accent-red);color:#fff;}
+  :focus-visible{outline:2px solid var(--accent-red);outline-offset:3px;}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:0 28px;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(238,241,244,0.88);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 28px;max-width:1000px;margin:0 auto;
+    font-family:var(--font-mono);font-size:13px;
+  }
+  .nav-id{font-weight:600;letter-spacing:0.01em;}
+  .nav-id span{color:var(--accent-red);}
+  .nav-links{display:flex;gap:22px;color:var(--text-muted);}
+  .nav-links a:hover{color:var(--accent-red);}
+  .status-pill{
+    display:flex;align-items:center;gap:8px;
+    color:var(--accent-teal);font-size:12px;
+    border:1px solid rgba(31,122,108,0.35);
+    background:rgba(31,122,108,0.07);
+    padding:5px 10px;border-radius:3px;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-teal);
+    box-shadow:0 0 0 0 rgba(31,122,108,0.55);
+    animation:pulse 2.2s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(31,122,108,0.45);}
+    70%{box-shadow:0 0 0 6px rgba(31,122,108,0);}
+    100%{box-shadow:0 0 0 0 rgba(31,122,108,0);}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{padding:88px 0 66px;}
+  .term-tag{
+    font-family:var(--font-mono);font-size:12px;color:var(--accent-red);
+    letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .term-tag::before{content:"";width:16px;height:1px;background:var(--accent-red);}
+
+  h1.hero-title{
+    font-size:clamp(34px,6vw,58px);
+    font-weight:700;
+    letter-spacing:-0.02em;
+    line-height:1.05;
+    margin:6px 0 18px;
+  }
+  h1.hero-title .underline-mark{
+    position:relative;
+    display:inline-block;
+  }
+  h1.hero-title .underline-mark::after{
+    content:"";position:absolute;left:0;right:0;bottom:2px;height:9px;
+    background:rgba(193,71,43,0.18);z-index:-1;
+  }
+
+  .hero-sub{
+    font-size:17px;color:var(--text-muted);max-width:580px;margin-bottom:30px;
+  }
+  .hero-sub strong{color:var(--text-primary);font-weight:600;}
+
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px;}
+  .btn{
+    font-family:var(--font-mono);font-size:13px;font-weight:500;
+    padding:11px 20px;border-radius:3px;border:1px solid var(--border-strong);
+    display:inline-flex;align-items:center;gap:8px;transition:all .18s ease;
+  }
+  .btn-primary{background:var(--text-primary);color:#fff;border-color:var(--text-primary);}
+  .btn-primary:hover{background:var(--accent-red);border-color:var(--accent-red);}
+  .btn-ghost{color:var(--text-muted);background:var(--bg-panel);}
+  .btn-ghost:hover{border-color:var(--accent-red);color:var(--accent-red);}
+
+  .hero-meta{
+    display:flex;gap:28px;flex-wrap:wrap;
+    font-family:var(--font-mono);font-size:12px;color:var(--text-dim);
+    border-top:1px dashed var(--border-strong);padding-top:18px;
+  }
+  .hero-meta b{color:var(--text-muted);font-weight:500;}
+
+  /* ---------- SECTION shared ---------- */
+  section{padding:62px 0;border-top:1px dashed var(--border-strong);}
+  .section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:32px;}
+  .section-tag{
+    font-family:var(--font-mono);font-size:12px;color:var(--accent-red);
+    letter-spacing:0.08em;
+  }
+  .section-title{font-size:25px;font-weight:700;letter-spacing:-0.01em;}
+  .section-lead{color:var(--text-muted);max-width:620px;margin-bottom:30px;font-size:15px;}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  /* ---------- ABOUT / whoami card ---------- */
+  .whoami{
+    background:var(--bg-panel);border:1px solid var(--border);
+    border-radius:6px;overflow:hidden;
+  }
+  .whoami-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 16px;border-bottom:1px solid var(--border);
+    font-family:var(--font-mono);font-size:11px;color:var(--text-dim);
+    letter-spacing:0.04em;text-transform:uppercase;
+  }
+  .whoami-body{padding:22px 26px;font-family:var(--font-mono);font-size:13.5px;}
+  .whoami-row{display:flex;gap:14px;padding:8px 0;border-bottom:1px dashed var(--border);}
+  .whoami-row:last-child{border-bottom:none;}
+  .whoami-key{color:var(--text-dim);width:140px;flex-shrink:0;}
+  .whoami-val{color:var(--text-primary);}
+  .whoami-val.accent{color:var(--accent-red);font-weight:500;}
+
+  /* ---------- SKILLS ---------- */
+  .skill-group{margin-bottom:26px;}
+  .skill-group-title{
+    font-family:var(--font-mono);font-size:12px;color:var(--text-dim);
+    text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;
+  }
+  .skill-row{
+    display:grid;grid-template-columns:16px 1fr auto;align-items:center;gap:14px;
+    padding:11px 14px;border:1px solid var(--border);border-radius:4px;
+    background:var(--bg-panel);margin-bottom:8px;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .skill-row:hover{border-color:var(--accent-red);background:var(--bg-panel-2);}
+  .skill-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-teal);}
+  .skill-name{font-weight:500;font-size:14.5px;}
+  .skill-level{
+    font-family:var(--font-mono);font-size:11px;color:var(--text-dim);
+    border:1px solid var(--border-strong);padding:3px 9px;border-radius:3px;
+    white-space:nowrap;
+  }
+
+  /* ---------- HOME LAB (blueprint diagram) ---------- */
+  .lab-diagram{
+    background:var(--bg-panel);border:1px solid var(--border);
+    border-radius:6px;padding:20px;margin-bottom:28px;position:relative;
+  }
+  .lab-diagram svg{width:100%;height:auto;display:block;}
+  .lab-notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+  .lab-note{
+    background:var(--bg-panel);border:1px solid var(--border);border-radius:5px;
+    padding:16px 18px;
+  }
+  .lab-note .tag{
+    font-family:var(--font-mono);font-size:10.5px;color:var(--accent-red);
+    letter-spacing:0.06em;margin-bottom:6px;display:block;
+  }
+  .lab-note p{color:var(--text-muted);font-size:13.5px;}
+
+  /* ---------- EXPERIENCE log ---------- */
+  .log-entry{
+    display:flex;gap:16px;padding:18px 0;border-bottom:1px dashed var(--border);
+  }
+  .log-entry:last-child{border-bottom:none;}
+  .log-flag{
+    font-family:var(--font-mono);font-size:11px;color:var(--accent-teal);
+    background:rgba(31,122,108,0.08);border:1px solid rgba(31,122,108,0.3);
+    padding:3px 8px;border-radius:3px;height:fit-content;white-space:nowrap;margin-top:2px;
+  }
+  .log-flag.past{
+    color:var(--text-dim);background:var(--bg-panel-2);border-color:var(--border-strong);
+  }
+  .log-content h3{font-size:16.5px;font-weight:600;margin-bottom:3px;}
+  .log-content .role-meta{
+    font-family:var(--font-mono);font-size:12px;color:var(--text-dim);margin-bottom:10px;
+  }
+  .log-content ul{padding-left:18px;color:var(--text-muted);font-size:14px;}
+  .log-content li{margin-bottom:5px;}
+
+  /* ---------- LEARNING roadmap ---------- */
+  .roadmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+  .road-card{
+    border:1px solid var(--border);border-radius:5px;padding:16px 18px;
+    background:var(--bg-panel);
+  }
+  .road-card .status{
+    font-family:var(--font-mono);font-size:10.5px;color:var(--accent-red);
+    letter-spacing:0.05em;margin-bottom:8px;display:block;
+  }
+  .road-card h4{font-size:14.5px;font-weight:600;margin-bottom:4px;}
+  .road-card p{font-size:12.5px;color:var(--text-dim);}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:50px 0 60px;text-align:center;}
+  .footer-flag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-mono);font-size:13px;color:var(--text-muted);
+    border:1px solid var(--border-strong);padding:8px 16px;border-radius:3px;margin-bottom:18px;
+    background:var(--bg-panel);
+  }
+  footer .fine{font-family:var(--font-mono);font-size:11.5px;color:var(--text-dim);}
+
+  @media (max-width:640px){
+    .nav-links{display:none;}
+    .hero{padding:56px 0 36px;}
+    section{padding:44px 0;}
+    .whoami-key{width:120px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="nav-id">max<span>_</span>hartmann.sys</div>
+    <div class="nav-links">
+      <a href="#about">whoami</a>
+      <a href="#skills">skills</a>
+      <a href="#lab">home-lab</a>
+      <a href="#experience">experience</a>
+      <a href="#learning">learning</a>
+    </div>
+    <div class="status-pill"><span class="dot"></span> OPEN TO WORK</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero" style="border-top:none;padding-top:68px;">
+    <div class="term-tag">// schematic — apprentice profile, rev. 2</div>
+    <h1 class="hero-title">Max <span class="underline-mark">Hartmann</span></h1>
+    <p class="hero-sub">
+      IT apprentice specializing in <strong>system administration, networking and IT support</strong> —
+      with a year of programming training behind him. Currently at S³IT GmbH, building
+      hands-on Windows &amp; Linux infrastructure skills, and looking to bring that combination
+      to a role in <strong>Norway.</strong>
+    </p>
+    <div class="hero-ctas">
+      <a href="#skills" class="btn btn-primary">View skill stack →</a>
+      <a href="#lab" class="btn btn-ghost">See the home lab</a>
+    </div>
+    <div class="hero-meta">
+      <div><b>Role:</b> Sysadmin / IT Support / IT Consulting</div>
+      <div><b>Based:</b> Germany</div>
+      <div><b>Target:</b> Norway 🇳🇴</div>
+      <div><b>Background:</b> 1 yr Programmer apprenticeship, completed</div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-head reveal">
+      <span class="section-tag">01</span>
+      <h2 class="section-title">whoami</h2>
+    </div>
+    <div class="whoami reveal">
+      <div class="whoami-bar"><span>whoami.log</span><span>doc. 01/06</span></div>
+      <div class="whoami-body">
+        <div class="whoami-row"><div class="whoami-key">name</div><div class="whoami-val">Max Hartmann</div></div>
+        <div class="whoami-row"><div class="whoami-key">current_role</div><div class="whoami-val">IT Apprentice — System Administration &amp; Support, S³IT GmbH</div></div>
+        <div class="whoami-row"><div class="whoami-key">prior_training</div><div class="whoami-val">Programmer apprenticeship — 1 year completed</div></div>
+        <div class="whoami-row"><div class="whoami-key">focus_areas</div><div class="whoami-val">Windows &amp; Linux administration · Networking · Active Directory · IT support</div></div>
+        <div class="whoami-row"><div class="whoami-key">approach</div><div class="whoami-val">Learns by building — runs a home lab to test what the day job only lets him touch in production</div></div>
+        <div class="whoami-row"><div class="whoami-key">target_market</div><div class="whoami-val accent">Norway — sysadmin, IT support &amp; consulting roles</div></div>
+        <div class="whoami-row"><div class="whoami-key">status</div><div class="whoami-val" style="color:var(--accent-teal)">● open to work</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-head reveal">
+      <span class="section-tag">02</span>
+      <h2 class="section-title">Skill stack</h2>
+    </div>
+    <p class="section-lead reveal">
+      A live-ish view of where things stand. Labels are honest about depth — this is an apprentice's
+      stack, actively growing, not a finished one.
+    </p>
+
+    <div class="reveal">
+      <div class="skill-group">
+        <div class="skill-group-title">Operating Systems</div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Windows Administration</span><span class="skill-level">working knowledge</span></div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Linux Fundamentals</span><span class="skill-level">hands-on practice</span></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Networking</div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Cisco Networking</span><span class="skill-level">foundational</span></div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Active Directory</span><span class="skill-level">working knowledge</span></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Virtualization</div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Hyper-V</span><span class="skill-level">hands-on practice</span></div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Oracle VirtualBox</span><span class="skill-level">hands-on practice</span></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Scripting &amp; Data</div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Pascal</span><span class="skill-level">from 1yr programmer training</span></div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">SQL</span><span class="skill-level">foundational</span></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Tools &amp; Operations</div>
+        <div class="skill-row"><span class="skill-dot"></span><span class="skill-name">Ticketing / Helpdesk Systems</span><span class="skill-level">working knowledge</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOME LAB -->
+  <section id="lab">
+    <div class="section-head reveal">
+      <span class="section-tag">03</span>
+      <h2 class="section-title">Home lab</h2>
+    </div>
+    <p class="section-lead reveal">
+      Built to get hands-on time beyond the apprenticeship — a small home network for testing
+      firewall rules, running virtual machines, and having a proper dedicated setup to work from.
+    </p>
+
+    <div class="lab-diagram reveal">
+      <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- connecting lines -->
+        <line x1="90" y1="140" x2="220" y2="140" stroke="#B9C3CC" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="330" y1="140" x2="440" y2="140" stroke="#B9C3CC" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="510" y1="100" x2="590" y2="65" stroke="#B9C3CC" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="510" y1="140" x2="590" y2="140" stroke="#B9C3CC" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="510" y1="180" x2="590" y2="215" stroke="#B9C3CC" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <!-- WAN -->
+        <rect x="10" y="115" width="80" height="50" rx="4" fill="#F7F9FA" stroke="#B9C3CC"/>
+        <text x="50" y="136" text-anchor="middle" fill="#5B6B7A" font-family="IBM Plex Mono" font-size="11">WAN</text>
+        <text x="50" y="152" text-anchor="middle" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">internet</text>
+
+        <!-- Firewall -->
+        <rect x="220" y="110" width="110" height="60" rx="4" fill="#FFFFFF" stroke="#C1472B" stroke-width="1.5"/>
+        <circle cx="234" cy="124" r="4" fill="#1F7A6C"/>
+        <text x="275" y="138" text-anchor="middle" fill="#16212C" font-family="IBM Plex Mono" font-size="12" font-weight="600">Firewall</text>
+        <text x="275" y="155" text-anchor="middle" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">rules &amp; segmentation</text>
+
+        <!-- Switch -->
+        <rect x="440" y="110" width="70" height="60" rx="4" fill="#FFFFFF" stroke="#B9C3CC"/>
+        <circle cx="454" cy="124" r="4" fill="#1F7A6C"/>
+        <text x="475" y="144" text-anchor="middle" fill="#16212C" font-family="IBM Plex Mono" font-size="11">Switch</text>
+
+        <!-- Hyper-V host -->
+        <rect x="590" y="40" width="150" height="50" rx="4" fill="#FFFFFF" stroke="#B9C3CC"/>
+        <circle cx="604" cy="54" r="4" fill="#1F7A6C"/>
+        <text x="665" y="61" text-anchor="middle" fill="#16212C" font-family="IBM Plex Mono" font-size="11" font-weight="600">Hyper-V Host</text>
+        <text x="665" y="77" text-anchor="middle" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">test workloads</text>
+
+        <!-- Linux VM -->
+        <rect x="590" y="115" width="150" height="50" rx="4" fill="#FFFFFF" stroke="#B9C3CC"/>
+        <circle cx="604" cy="129" r="4" fill="#1F7A6C"/>
+        <text x="665" y="136" text-anchor="middle" fill="#16212C" font-family="IBM Plex Mono" font-size="11" font-weight="600">Linux VM</text>
+        <text x="665" y="152" text-anchor="middle" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">experimentation</text>
+
+        <!-- Workstation -->
+        <rect x="590" y="190" width="150" height="50" rx="4" fill="#FFFFFF" stroke="#B9C3CC"/>
+        <circle cx="604" cy="204" r="4" fill="#1F7A6C"/>
+        <text x="665" y="211" text-anchor="middle" fill="#16212C" font-family="IBM Plex Mono" font-size="11" font-weight="600">Workstation</text>
+        <text x="665" y="227" text-anchor="middle" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">dedicated work setup</text>
+
+        <!-- title block -->
+        <line x1="10" y1="255" x2="740" y2="255" stroke="#D3DAE1" stroke-width="1"/>
+        <text x="10" y="272" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">DWG: HOME-LAB-01</text>
+        <text x="400" y="272" text-anchor="middle" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">SCALE: N/A</text>
+        <text x="740" y="272" text-anchor="end" fill="#8C99A6" font-family="IBM Plex Mono" font-size="9">REV: 2</text>
+      </svg>
+    </div>
+
+    <div class="lab-notes reveal">
+      <div class="lab-note">
+        <span class="tag">FIREWALL</span>
+        <p>Set up and configured a home firewall to practice rule-writing and network segmentation outside of production.</p>
+      </div>
+      <div class="lab-note">
+        <span class="tag">LINUX VM</span>
+        <p>Runs a Linux virtual machine to experiment freely — safe space to break things and learn how to fix them.</p>
+      </div>
+      <div class="lab-note">
+        <span class="tag">WORKSPACE</span>
+        <p>Built out a proper dedicated location to work from, treating the lab like real infrastructure, not a hobby corner.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="section-head reveal">
+      <span class="section-tag">04</span>
+      <h2 class="section-title">Experience</h2>
+    </div>
+
+    <div class="reveal">
+      <div class="log-entry">
+        <span class="log-flag">[ONGOING]</span>
+        <div class="log-content">
+          <h3>IT Apprentice — System Administration &amp; Support</h3>
+          <div class="role-meta">S³IT GmbH</div>
+          <ul>
+            <li>Supporting day-to-day Windows administration and Active Directory tasks</li>
+            <li>Handling IT support requests end-to-end through the company ticketing system</li>
+            <li>Assisting with networking tasks across the internal infrastructure</li>
+            <li>Building foundational experience across the full sysadmin/support workflow</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="log-entry">
+        <span class="log-flag past">[COMPLETED — 1 YR]</span>
+        <div class="log-content">
+          <h3>Apprentice Programmer</h3>
+          <div class="role-meta">Prior training, completed before current apprenticeship</div>
+          <ul>
+            <li>Completed a full year of training in programming fundamentals, including Pascal and SQL</li>
+            <li>Built a working understanding of program logic, data structures and database basics</li>
+            <li>That foundation now feeds directly into scripting and automation on the infrastructure side</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARNING -->
+  <section id="learning">
+    <div class="section-head reveal">
+      <span class="section-tag">05</span>
+      <h2 class="section-title">Learning &amp; certification roadmap</h2>
+    </div>
+    <p class="section-lead reveal">
+      No certifications locked in yet — deliberately staying flexible to align with whatever the
+      next role actually needs, rather than collecting badges for their own sake.
+    </p>
+
+    <div class="roadmap reveal">
+      <div class="road-card">
+        <span class="status">EXPLORING</span>
+        <h4>CompTIA A+ / Network+</h4>
+        <p>Foundational support &amp; networking track</p>
+      </div>
+      <div class="road-card">
+        <span class="status">EXPLORING</span>
+        <h4>Cisco CCNA</h4>
+        <p>Deepening the networking fundamentals already in progress</p>
+      </div>
+      <div class="road-card">
+        <span class="status">EXPLORING</span>
+        <h4>Microsoft AZ-900 / MS-900</h4>
+        <p>Cloud &amp; Microsoft 365 fundamentals</p>
+      </div>
+      <div class="road-card">
+        <span class="status">EXPLORING</span>
+        <h4>ITIL Foundation</h4>
+        <p>IT service management, for the consulting side of the role</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-flag">📍 Open to relocating to Norway</div>
+  <div class="fine">max_hartmann.sys — built for the next role, not the last one.</div>
+  <!-- Max: add your email / LinkedIn / GitHub here when ready, e.g.
+       <a href="mailto:you@example.com">you@example.com</a> -->
+</footer>
+
+<script>
+  const items = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  },{threshold:0.12});
+  items.forEach(i=>io.observe(i));
+</script>
+
+</body>
+</html>
