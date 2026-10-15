@@ -1,0 +1,1480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hyttero | Cabin keepers on the Norwegian west coast</title>
+<script>
+  // Theme before first paint: saved choice, otherwise the system setting.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('hyttero-theme'); } catch (e) {}
+    if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+    // Reveal-on-scroll is opt-in: if the page script never runs, show everything after 3s.
+    document.documentElement.classList.add('js');
+    setTimeout(function () { if (!window.__reveal) document.documentElement.classList.remove('js'); }, 3000);
+  })();
+</script>
+<meta name="description" content="Hyttero looks after cabins and holiday homes on the Norwegian west coast while owners are away. Regular visits, photo reports and a local keeper on call.">
+<meta property="og:title" content="Hyttero | Cabin keepers on the Norwegian west coast">
+<meta property="og:description" content="Regular visits, photo reports and a storm call-out within two hours, for cabin owners near and far.">
+<meta property="og:image" content="images/hero-campfire.jpg">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0b1628">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="images/hero-campfire.jpg">
+<link rel="icon" href="images/logo.jpg">
+<style>
+/* ==========================================================================
+   Tokens: Storm coast, original Hyttero palette.
+   ========================================================================== */
+:root {
+  color-scheme: light;
+  /* Palette (unchanged from v2, except --ink-soft darkened for AA on --surface) */
+  --brand: #2563c9; --brand-deep: #0f2f63; --brand-light: #5790e6; --night: #0b1628; --night-2: #12213a;
+  --white: #ffffff; --black: #0a0a0a; --paper: #ffffff; --paper-ink: #0a0a0a; --paper-soft: #5f6571;
+  --on-photo-soft: rgba(255,255,255,.82);
+
+  /* Roles */
+  --ground: #ffffff;
+  --surface: #f4f4f4;
+  --ink: #0a0a0a;
+  --ink-soft: #5f6571;
+  --accent: #2563c9;
+  --accent-press: #0f2f63;
+  --on-accent: #ffffff;
+  --focus: #5790e6;
+
+  /* Scrims: the one place a fade is allowed, under text on photographs */
+  --scrim-up: linear-gradient(to top, rgba(11,22,40,.92) 0%, rgba(11,22,40,.55) 45%, rgba(11,22,40,.2) 75%, rgba(11,22,40,.45) 100%); /* taste-skill-ignore: scrim under text on photos */
+  --scrim-left: linear-gradient(to right, rgba(11,22,40,.9) 0%, rgba(11,22,40,.6) 45%, rgba(11,22,40,.15) 100%); /* taste-skill-ignore: scrim under text on photos */
+
+  /* Type: two faces, five steps */
+  --font-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --font-text: "Geist", system-ui, sans-serif;
+  --step-0: 0.875rem;                                /* 14px  notes, meta */
+  --step-1: 1.0625rem;                               /* 17px  running text */
+  --step-2: clamp(1.5rem, 1rem + 1.6vw, 2.25rem);    /* 24–36px statements, item names */
+  --step-3: clamp(2.25rem, 1rem + 5vw, 6rem);        /* 36–96px headings */
+  --step-4: clamp(5rem, 14vw, 13rem);                /* the wind readout */
+
+  /* Space */
+  --s-1: 0.25rem; --s-2: 0.5rem; --s-3: 0.75rem; --s-4: 1rem; --s-5: 1.5rem; --s-6: 2rem;
+  --s-7: 3rem; --s-8: 4rem; --s-9: 6rem; --s-10: 8rem;
+  --margin: clamp(1rem, 3vw, 2.5rem);
+  --section: clamp(6rem, 11vw, 11rem);
+  --max: 90rem;
+  --hdr-h: 4.5rem;
+
+  /* Shape */
+  --radius: 2px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-press: 120ms; --dur-ui: 200ms; --dur-enter: 700ms; --dur-fade: 1100ms;
+
+  /* Layers */
+  --z-header: 50; --z-progress: 60; --z-menu: 70; --z-modal: 90;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0b1628;
+  --surface: #12213a;
+  --ink: #ffffff;
+  --ink-soft: #a9b5c9;
+  --accent: #5790e6;
+  --accent-press: #ffffff;
+  --on-accent: #0b1628;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  min-height: 100svh; background: var(--ground); color: var(--ink);
+  font-family: var(--font-text); font-size: var(--step-1); line-height: 1.55;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+ul, ol { list-style: none; padding: 0; }
+figure { margin: 0; }
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: var(--radius); }
+::selection { background: var(--brand-light); color: var(--night); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: var(--margin); top: -4rem; z-index: 100; background: var(--white); color: var(--black); padding: var(--s-3) var(--s-4); border-radius: var(--radius); text-decoration: none; }
+.skip:focus { top: var(--s-3); }
+.mark { width: 1.375rem; height: 1.375rem; flex: none; }
+main { overflow-x: clip; }
+section[id] { scroll-margin-top: var(--hdr-h); }
+.wrap { max-width: var(--max); margin-inline: auto; padding-inline: var(--margin); }
+.h2 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-3); line-height: 0.95; letter-spacing: -0.035em; }
+.lede { max-width: 46ch; }
+.credit { font-size: var(--step-0); color: var(--on-photo-soft); }
+.credit a { text-underline-offset: 3px; }
+
+/* A photograph that fills its section. The image sits in a layer that can drift on scroll. */
+.photo-bg { position: absolute; inset: 0; overflow: hidden; z-index: -1; background: var(--night); }
+.photo-bg > img, .photo-bg > .drift > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.photo-bg .drift { position: absolute; inset: -12% 0; }
+.photo-bg::after { content: ""; position: absolute; inset: 0; background: var(--scrim-up); }
+.photo-bg.left::after { background: var(--scrim-left); }
+.on-photo { position: relative; isolation: isolate; color: var(--white); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  min-height: 3.25rem; padding: 0 var(--s-6); border-radius: var(--radius);
+  background: var(--accent); color: var(--on-accent);
+  font-size: var(--step-1); font-weight: 500; text-decoration: none; white-space: nowrap;
+  transition: background-color var(--dur-ui) var(--ease-out), color var(--dur-ui) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.btn:active { transform: scale(0.97); }
+.btn.light { background: var(--white); color: var(--brand-deep); }
+.btn svg, .tlink svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--dur-ui) var(--ease-out); }
+.tlink { display: inline-flex; align-items: center; gap: var(--s-2); font-weight: 500; min-height: 3rem; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
+.round-btn {
+  width: 3.25rem; height: 3.25rem; display: grid; place-items: center; border-radius: 50%;
+  background: var(--white); color: var(--night);
+  transition: background-color var(--dur-ui) var(--ease-out), transform var(--dur-press) var(--ease-out), opacity var(--dur-ui);
+}
+.round-btn:active { transform: scale(0.94); }
+.round-btn:disabled { opacity: .35; cursor: default; }
+.round-btn svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.flip-x { display: inline-grid; transform: scaleX(-1); }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: var(--accent-press); color: var(--ground); }
+  .btn.light:hover { background: var(--brand-light); color: var(--white); }
+  .btn:hover svg, .tlink:hover svg { transform: translateX(3px); }
+  .round-btn:not(:disabled):hover { background: var(--brand-light); color: var(--white); }
+}
+
+/* ---------- Header: over the photo at first, a solid bar once you scroll; hides while reading ---------- */
+.progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: var(--z-progress); background: var(--brand-light); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
+.hdr {
+  position: fixed; top: 0; left: 0; right: 0; z-index: var(--z-header); height: var(--hdr-h);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-5);
+  padding: 0 var(--margin); color: var(--white);
+  transition: transform 300ms var(--ease-out), background-color var(--dur-ui) linear;
+}
+.hdr.solid { background: var(--night); }
+.hdr.away { transform: translateY(-100%); }
+.hdr-brand { display: inline-flex; align-items: center; gap: var(--s-2); font-weight: 500; text-decoration: none; }
+.hdr-nav { display: none; gap: var(--s-6); }
+.hdr-nav a { font-size: var(--step-0); text-decoration: none; color: var(--on-photo-soft); transition: color var(--dur-ui) var(--ease-out); }
+.hdr-nav a[aria-current="true"] { color: var(--white); text-decoration: underline; text-underline-offset: 6px; }
+.hdr-right { display: flex; align-items: center; gap: var(--s-2); }
+.hdr-right .btn { display: none; min-height: 2.75rem; padding: 0 var(--s-5); }
+.icon-btn {
+  width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border-radius: var(--radius);
+  color: inherit; transition: background-color var(--dur-ui) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.icon-btn:active { transform: scale(0.94); }
+.icon-btn svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ico-sun { display: none; }
+[data-theme="dark"] .ico-sun { display: block; }
+[data-theme="dark"] .ico-moon { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .hdr-nav a:hover { color: var(--white); }
+  .icon-btn:hover { background: rgba(255,255,255,.12); }
+}
+@media (min-width: 1000px) {
+  .hdr-nav { display: flex; }
+  .hdr-right .btn { display: inline-flex; }
+  .burger { display: none; }
+}
+
+/* ---------- Hero: full-bleed photograph, chosen by the coast you pick ---------- */
+.hero { height: 100svh; min-height: 40rem; display: flex; flex-direction: column; justify-content: flex-end; }
+.hero .photo-bg img { opacity: 0; transform: scale(1.08); transition: opacity var(--dur-fade) var(--ease-out), transform 9s linear; }
+.hero .photo-bg img.is-on { opacity: 1; transform: scale(1); }
+.hero-inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 27rem); gap: var(--s-8); align-items: end; padding-bottom: clamp(2rem, 6vh, 4rem); width: 100%; }
+.hero h1 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-3); line-height: 0.95; letter-spacing: -0.035em; max-width: 13ch; }
+.hero-lede { margin-top: var(--s-5); max-width: 40ch; font-size: 1.125rem; color: var(--on-photo-soft); }
+.hero-actions { margin-top: var(--s-6); display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-6); align-items: center; }
+.coast-pick { background: var(--night); padding: var(--s-5); border-radius: var(--radius); }
+.coast-pick h2 { font-size: var(--step-1); font-weight: 500; }
+.chips { margin-top: var(--s-4); display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.chip {
+  min-height: 2.75rem; padding: 0 var(--s-4); border-radius: 999px; background: rgba(255,255,255,.1); color: var(--white); font-size: var(--step-0); font-weight: 500;
+  transition: background-color var(--dur-ui) var(--ease-out), color var(--dur-ui) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.chip:active { transform: scale(0.96); }
+.chip[aria-pressed="true"] { background: var(--white); color: var(--night); }
+@media (hover: hover) and (pointer: fine) { .chip[aria-pressed="false"]:hover { background: rgba(255,255,255,.2); } }
+.wx-line { margin-top: var(--s-5); display: flex; align-items: baseline; gap: var(--s-3); font-variant-numeric: tabular-nums; }
+.wx-line b { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); letter-spacing: -0.02em; }
+.wx-line span { color: var(--on-photo-soft); font-size: var(--step-0); }
+.coast-pick .credit { margin-top: var(--s-3); min-height: 1.4em; }
+@media (max-width: 899px) {
+  .hero { height: auto; min-height: 100svh; padding-top: calc(var(--hdr-h) + 18svh); }
+  .hero-inner { grid-template-columns: 1fr; gap: var(--s-6); }
+  .hero-lede { font-size: var(--step-1); }
+  .hero-actions .btn { width: 100%; }
+}
+
+/* ---------- Place names, moving slowly across ---------- */
+.ticker { background: var(--brand); color: var(--white); overflow: hidden; padding-block: var(--s-5); }
+.ticker-track { display: flex; width: max-content; animation: ticker 40s linear infinite; }
+.ticker-track span { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); letter-spacing: -0.02em; padding-right: var(--s-7); white-space: nowrap; }
+.ticker-track span::after { content: ""; display: inline-block; width: 0.45em; height: 0.45em; border-radius: 50%; background: var(--night); margin-left: var(--s-7); vertical-align: 0.15em; }
+@keyframes ticker { to { transform: translateX(-50%); } }
+
+/* ---------- How it works: steps drive a phone that shows the report ---------- */
+#how { padding-block: var(--section); }
+.how { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-9); align-items: center; }
+.how .lede { margin-top: var(--s-5); }
+.steps { margin-top: var(--s-7); display: grid; gap: var(--s-2); }
+.step {
+  position: relative; width: 100%; text-align: left; padding: var(--s-5); border-radius: var(--radius);
+  background: var(--surface); overflow: hidden;
+  transition: background-color var(--dur-ui) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.step:active { transform: scale(0.99); }
+.step h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); line-height: 1.05; letter-spacing: -0.02em; }
+.step p { margin-top: var(--s-2); max-width: 46ch; color: var(--ink-soft); }
+.step[aria-selected="true"] { background: var(--brand-deep); color: var(--white); }
+.step[aria-selected="true"] p { color: var(--on-photo-soft); }
+.step-bar { position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; background: var(--brand-light); transform: scaleX(0); transform-origin: 0 50%; }
+.step[aria-selected="true"] .step-bar { animation: fill var(--cycle, 6s) linear forwards; }
+.steps.paused .step-bar { animation: none; transform: scaleX(0); }
+@keyframes fill { to { transform: scaleX(1); } }
+@media (hover: hover) and (pointer: fine) { .step[aria-selected="false"]:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); } }
+
+/* The phone is a real interface fragment (data-ui keeps its own frame and rules). */
+.phone { width: 19rem; aspect-ratio: 9 / 18.5; border-radius: 2.75rem; background: var(--black); padding: 0.75rem; box-shadow: 0 2.5rem 5rem -2rem rgba(11,22,40,.55); /* taste-skill-ignore: a device held up off the page */ }
+.screen { position: relative; height: 100%; border-radius: 2.1rem; overflow: hidden; background: #f4f4f4; color: var(--black); font-size: var(--step-0); }
+.screen-bar { display: flex; justify-content: space-between; padding: 0.9rem 1.4rem 0.4rem; font-weight: 500; }
+.view { position: absolute; inset: 2.6rem 0 0; padding: var(--s-4); opacity: 0; transform: translateY(0.75rem); transition: opacity 350ms var(--ease-out), transform 350ms var(--ease-out); }
+.view.is-on { opacity: 1; transform: none; }
+.view[hidden] { display: block; visibility: hidden; }
+.app-title { font-weight: 500; font-size: var(--step-1); }
+.app-sub { color: var(--paper-soft); }
+.card-ui { margin-top: var(--s-3); background: var(--white); border-radius: 0.9rem; padding: var(--s-4); }
+.card-ui img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 0.6rem; }
+.card-ui.pic { padding: 0; overflow: hidden; }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.3rem; text-align: center; margin-top: var(--s-3); font-variant-numeric: tabular-nums; }
+.cal span { padding: 0.35rem 0; border-radius: 50%; }
+.cal .on { background: var(--brand); color: var(--white); }
+.checks { margin-top: var(--s-3); display: grid; gap: var(--s-2); }
+.checks li { display: grid; grid-template-columns: 1.4rem 1fr auto; gap: var(--s-2); align-items: center; background: var(--white); border-radius: 0.7rem; padding: 0.6rem 0.75rem; opacity: .4; transition: opacity 300ms var(--ease-out); }
+.checks li.done { opacity: 1; }
+.checks svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: var(--brand); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transform: scale(0.6); opacity: 0; transition: transform 300ms var(--ease-out), opacity 300ms var(--ease-out); }
+.checks li.done svg { transform: none; opacity: 1; }
+.checks em { font-style: normal; color: var(--paper-soft); }
+.shots { margin-top: var(--s-3); display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+.shots img { aspect-ratio: 1; object-fit: cover; border-radius: 0.6rem; width: 100%; opacity: 0; transform: scale(0.94); transition: opacity 350ms var(--ease-out), transform 350ms var(--ease-out); }
+.shots img.in { opacity: 1; transform: none; }
+.toast-ui { position: absolute; left: var(--s-3); right: var(--s-3); bottom: var(--s-4); background: var(--night); color: var(--white); border-radius: 0.9rem; padding: var(--s-3) var(--s-4); opacity: 0; transform: translateY(0.75rem); transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out); }
+.toast-ui.in { opacity: 1; transform: none; }
+.toast-ui b { display: block; font-weight: 500; }
+@media (max-width: 899px) {
+  .how { grid-template-columns: 1fr; gap: var(--s-8); }
+  .phone { justify-self: center; width: min(19rem, 80vw); }
+}
+
+/* ---------- Storm: drag the wind, watch the rain and the response ---------- */
+#storm { min-height: 100svh; display: flex; align-items: center; padding-block: var(--section); }
+.storm-dark { position: absolute; inset: 0; background: var(--night); opacity: 0.25; transition: opacity 300ms linear; z-index: 0; }
+.rain { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.storm-inner { position: relative; z-index: 2; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-8); align-items: end; }
+.storm-inner .lede { margin-top: var(--s-5); color: var(--on-photo-soft); }
+.wind { margin-top: var(--s-7); max-width: 34rem; }
+.wind label { display: block; font-weight: 500; margin-bottom: var(--s-3); }
+.wind input[type="range"] { width: 100%; height: 2.75rem; accent-color: var(--brand-light); cursor: grab; }
+.wind input[type="range"]:active { cursor: grabbing; }
+.wind-scale { display: flex; justify-content: space-between; font-size: var(--step-0); color: var(--on-photo-soft); font-variant-numeric: tabular-nums; }
+.readout { font-family: var(--font-display); font-weight: 700; font-size: var(--step-4); line-height: 0.8; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.readout small { font-size: 0.28em; letter-spacing: 0; margin-left: 0.15em; }
+.level { margin-top: var(--s-5); background: var(--night); padding: var(--s-5); border-radius: var(--radius); max-width: 30rem; transition: background-color var(--dur-ui) var(--ease-out); }
+.level h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); letter-spacing: -0.02em; }
+.level p { margin-top: var(--s-2); color: var(--on-photo-soft); }
+.level.alert { background: var(--brand); }
+.level.alert p { color: var(--white); }
+#storm > .credit { position: absolute; right: var(--margin); bottom: var(--s-4); z-index: 2; }
+@media (max-width: 899px) {
+  .storm-inner { grid-template-columns: 1fr; gap: var(--s-6); }
+  #storm { flex-direction: column; align-items: stretch; }
+  #storm > .credit { position: relative; right: auto; bottom: auto; margin: var(--s-6) var(--margin) 0; }
+}
+
+/* ---------- Services: chapters scroll past a picture that changes with them ---------- */
+#services { position: relative; background: var(--night); color: var(--white); }
+.chapters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+.chapters-text { padding: var(--section) var(--margin) 0; }
+.chapter { min-height: 90svh; display: flex; flex-direction: column; justify-content: center; max-width: 34rem; padding-block: var(--s-8); }
+.chapter h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-3); line-height: 0.95; letter-spacing: -0.035em; }
+.chapter p { margin-top: var(--s-5); color: var(--on-photo-soft); max-width: 40ch; }
+.chapter .tlink { margin-top: var(--s-5); align-self: flex-start; }
+.chapter-pic { display: none; }
+.chapters-media { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.chapters-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06); transition: opacity 700ms var(--ease-out), transform 1.4s var(--ease-out); }
+.chapters-media img.is-on { opacity: 1; transform: none; }
+.chapters-index { position: absolute; left: var(--s-5); bottom: var(--s-5); right: var(--s-5); display: flex; flex-wrap: wrap; gap: var(--s-2); z-index: 1; }
+.chapters-index button { min-height: 2.75rem; padding: 0 var(--s-4); border-radius: 999px; background: var(--night); color: var(--white); font-size: var(--step-0); font-weight: 500; transition: background-color var(--dur-ui) var(--ease-out), color var(--dur-ui) var(--ease-out), transform var(--dur-press) var(--ease-out); }
+.chapters-index button:active { transform: scale(0.96); }
+.chapters-index button[aria-current="true"] { background: var(--white); color: var(--night); }
+.chapters-media .credit { position: absolute; right: var(--s-5); top: calc(var(--hdr-h) + var(--s-3)); z-index: 1; background: var(--night); padding: var(--s-1) var(--s-3); border-radius: var(--radius); opacity: 0; transition: opacity var(--dur-ui); }
+.chapters-media .credit.show { opacity: 1; }
+@media (max-width: 899px) {
+  .chapters { grid-template-columns: 1fr; }
+  /* Phones: each chapter carries its own picture instead of a pinned one */
+  .chapters-media { display: none; }
+  .chapters-text { padding-top: var(--section); padding-bottom: var(--s-8); }
+  .chapter { min-height: 0; padding-block: var(--s-7) 0; }
+  .chapter-pic { display: block; position: relative; margin: 0 calc(var(--margin) * -1) var(--s-5); aspect-ratio: 4 / 3; overflow: hidden; }
+  .chapter-pic img { width: 100%; height: 100%; object-fit: cover; }
+  .chapter-pic .credit { position: absolute; left: var(--s-3); bottom: var(--s-2); }
+}
+
+/* ---------- Coast: a strip of full-height pictures you drag or swipe ---------- */
+#coast { padding-block: var(--section); }
+.coast-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s-6); flex-wrap: wrap; }
+.coast-head .lede { margin-top: var(--s-4); color: var(--ink-soft); }
+.coast-ctrl { display: flex; gap: var(--s-3); }
+.coast-ctrl .round-btn { background: var(--surface); color: var(--ink); }
+.track {
+  margin-top: var(--s-7); display: flex; gap: var(--s-4); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--margin);
+  padding-inline: var(--margin); scrollbar-width: none; overscroll-behavior-x: contain; cursor: grab;
+}
+.track::-webkit-scrollbar { display: none; }
+.track.dragging { cursor: grabbing; scroll-snap-type: none; }
+.track.dragging * { pointer-events: none; }
+.place {
+  position: relative; isolation: isolate; flex: none; width: min(62vw, 56rem); height: min(72svh, 44rem);
+  scroll-snap-align: start; display: flex; flex-direction: column; justify-content: flex-end; padding: var(--s-6);
+  color: var(--white); border-radius: var(--radius); overflow: hidden;
+}
+.place img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transform: scale(1.04); transition: transform 1.2s var(--ease-out); }
+.place::after { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--scrim-up); }
+.place h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-3); line-height: 0.95; letter-spacing: -0.035em; }
+.place p { margin-top: var(--s-3); max-width: 38ch; }
+.place .credit { margin-top: var(--s-4); }
+@media (hover: hover) and (pointer: fine) { .place:hover img { transform: scale(1); } }
+.track-bar { margin: var(--s-5) var(--margin) 0; height: 4px; background: var(--surface); border-radius: 2px; overflow: hidden; }
+.track-bar i { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0.25); }
+@media (max-width: 899px) {
+  .place { width: 84vw; height: 66svh; padding: var(--s-5); }
+}
+
+/* ---------- Owners: cards over the picture ---------- */
+#owners { padding-block: var(--section); min-height: 100svh; display: flex; align-items: center; }
+.owners { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 40rem); gap: var(--s-8); align-items: center; }
+.owners .lede { margin-top: var(--s-5); color: var(--on-photo-soft); }
+.owner-cards { display: grid; gap: var(--s-6); }
+.owner > p { margin-top: var(--s-3); color: var(--on-photo-soft); max-width: 40ch; }
+@media (max-width: 899px) { .owners { grid-template-columns: 1fr; } }
+
+/* Flip business card: photo + name on the front, contact details on the back. */
+.bcard { perspective: 1400px; }
+.bcard-inner { display: grid; transform-style: preserve-3d; transition: transform 700ms var(--ease-out); }
+.bcard.is-flipped .bcard-inner { transform: rotateY(180deg); }
+.bcard-face { grid-area: 1 / 1; position: relative; overflow: hidden; border-radius: var(--radius); backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: visibility 0s linear 350ms; }
+.bcard.is-flipped .bcard-front, .bcard:not(.is-flipped) .bcard-back { visibility: hidden; }
+.bcard.is-flipped .bcard-back, .bcard:not(.is-flipped) .bcard-front { transition-delay: 0s; }
+.bcard-front { background: var(--paper); color: var(--paper-ink); display: grid; grid-template-columns: 40% 1fr; grid-template-rows: 100%; aspect-ratio: 2 / 1; cursor: pointer; }
+.bcard-photo { position: relative; min-height: 0; }
+.bcard-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+.bcard-logo { position: absolute; top: var(--s-4); right: var(--s-4); width: 1.75rem; height: 1.75rem; color: var(--brand-deep); }
+.bcard-info { padding: var(--s-5); display: flex; flex-direction: column; justify-content: flex-end; }
+.bcard h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); line-height: 1.05; letter-spacing: -0.02em; }
+.bcard-role { color: var(--paper-soft); font-size: var(--step-0); margin-top: var(--s-1); }
+.bcard-flip { display: inline-flex; align-items: center; gap: var(--s-2); margin-top: var(--s-2); font-size: var(--step-0); font-weight: 500; text-decoration: underline; text-underline-offset: 4px; min-height: 2.75rem; align-self: flex-start; }
+.bcard-flip svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bcard-back { background: var(--brand); color: var(--white); transform: rotateY(180deg); padding: var(--s-5); display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-3); }
+.bcard-back .bcard-logo { color: var(--white); }
+.bcard-name { font-weight: 500; padding-right: 3rem; }
+.bcard-contact { display: grid; gap: var(--s-1); font-size: var(--step-0); }
+.bcard-contact div { display: grid; grid-template-columns: 5rem 1fr; }
+.bcard-contact dt { color: rgba(255,255,255,.8); }
+.bcard-contact dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.bcard-back .bcard-flip { margin-top: 0; }
+
+/* ---------- Reviews: one owner at a time, over a storm painting ---------- */
+#reviews { min-height: 100svh; display: flex; align-items: flex-end; padding-block: var(--section) var(--s-8); }
+.quotes { width: 100%; }
+.quote-stage { display: grid; margin-top: var(--s-7); min-height: 13rem; }
+.quote { grid-area: 1 / 1; opacity: 0; transform: translateY(1rem); transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out), visibility 0s linear 500ms; visibility: hidden; }
+.quote.is-on { opacity: 1; transform: none; visibility: visible; transition-delay: 0s; }
+.quote blockquote { font-family: var(--font-display); font-weight: 500; font-size: var(--step-2); line-height: 1.2; letter-spacing: -0.015em; max-width: 26ch; }
+.quote figcaption { margin-top: var(--s-5); }
+.quote figcaption b { font-weight: 500; }
+.quote figcaption span { display: block; color: var(--on-photo-soft); font-size: var(--step-0); }
+.quote-ctrl { margin-top: var(--s-7); display: flex; align-items: center; gap: var(--s-4); }
+.dots { display: flex; gap: var(--s-2); margin-left: var(--s-3); }
+.dots button { width: 3rem; height: 2.75rem; display: grid; align-items: center; }
+.dots i { display: block; height: 4px; border-radius: 2px; background: rgba(255,255,255,.3); overflow: hidden; }
+.dots i::after { content: ""; display: block; height: 100%; background: var(--white); transform: scaleX(0); transform-origin: 0 50%; }
+.dots button[aria-current="true"] i::after { animation: fill var(--quote-cycle, 7s) linear forwards; }
+.quotes.paused .dots button[aria-current="true"] i::after, .dots button.seen i::after { animation: none; transform: scaleX(1); }
+#reviews .credit { margin-top: var(--s-7); }
+
+/* ---------- Prices: the receipt sits on the picture ---------- */
+#prices { padding-block: var(--section); }
+.prices { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-8); align-items: stretch; }
+.prices .lede { margin-top: var(--s-5); color: var(--ink-soft); }
+.options { margin-top: var(--s-7); display: grid; gap: var(--s-2); border: 0; padding: 0; }
+.options legend { font-weight: 500; margin-bottom: var(--s-3); }
+.opt { display: grid; grid-template-columns: 1.5rem 1fr auto; gap: var(--s-3); align-items: center; min-height: 3.5rem; cursor: pointer; padding: var(--s-2) var(--s-4); background: var(--surface); border-radius: var(--radius); transition: background-color var(--dur-ui) var(--ease-out); }
+.opt input { width: 1.25rem; height: 1.25rem; accent-color: var(--accent); margin: 0; }
+.opt span:last-child { font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.opt:has(input:checked) { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+@media (hover: hover) and (pointer: fine) { .opt:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); } }
+.prices .btn { margin-top: var(--s-7); }
+.receipt-scene { position: relative; isolation: isolate; border-radius: var(--radius); overflow: hidden; display: flex; align-items: center; justify-content: center; padding: var(--s-8) var(--s-5); min-height: 36rem; }
+.receipt-scene .photo-bg::after { background: rgba(11,22,40,.35); }
+.receipt {
+  width: min(100%, 23rem); background: var(--paper); color: var(--paper-ink); padding: var(--s-7) var(--s-6) var(--s-8);
+  font-variant-numeric: tabular-nums; transform: rotate(-2deg);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), 95% 100%, 90% calc(100% - 12px), 85% 100%, 80% calc(100% - 12px), 75% 100%, 70% calc(100% - 12px), 65% 100%, 60% calc(100% - 12px), 55% 100%, 50% calc(100% - 12px), 45% 100%, 40% calc(100% - 12px), 35% 100%, 30% calc(100% - 12px), 25% 100%, 20% calc(100% - 12px), 15% 100%, 10% calc(100% - 12px), 5% 100%, 0 calc(100% - 12px));
+}
+.receipt h3 { text-align: center; font-size: var(--step-1); font-weight: 500; }
+.receipt-sub { text-align: center; font-size: var(--step-0); color: var(--paper-soft); margin-top: var(--s-1); }
+.receipt ul { margin-top: var(--s-6); display: grid; gap: var(--s-3); }
+.receipt li { display: flex; justify-content: space-between; gap: var(--s-4); }
+.receipt li span:last-child { white-space: nowrap; }
+.receipt li[hidden] { display: none; }
+.receipt-total { margin-top: var(--s-5); padding-top: var(--s-4); border-top: 4px solid var(--paper-ink); display: flex; justify-content: space-between; align-items: baseline; }
+.receipt-total b { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); letter-spacing: -0.02em; }
+.receipt-note { margin-top: var(--s-5); font-size: var(--step-0); color: var(--paper-soft); }
+@media (max-width: 899px) {
+  .prices { grid-template-columns: 1fr; }
+  .prices .btn { width: 100%; }
+  .receipt-scene { min-height: 0; }
+}
+
+/* ---------- Contact: the form over a warm room ---------- */
+#contact { min-height: 100svh; display: flex; align-items: center; padding-block: var(--section); }
+.contact { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); gap: var(--s-8); align-items: center; }
+.contact .lede { margin-top: var(--s-5); color: var(--on-photo-soft); }
+.contact-lines { margin-top: var(--s-6); display: grid; gap: var(--s-2); justify-items: start; }
+.contact-lines a { font-weight: 500; text-underline-offset: 4px; min-height: 2.75rem; display: inline-flex; align-items: center; }
+.form-panel { background: var(--night); color: var(--white); padding: var(--s-7) var(--s-6); border-radius: var(--radius); }
+.form-panel > h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); letter-spacing: -0.02em; margin-bottom: var(--s-5); }
+@media (max-width: 899px) {
+  .contact { grid-template-columns: 1fr; }
+  .form-panel { padding: var(--s-6) var(--s-5); }
+}
+
+/* Form fields, shared by the page form and the dialog */
+.cform { display: grid; gap: var(--s-3); }
+.field { display: grid; gap: var(--s-1); }
+.field label { font-size: var(--step-0); color: rgba(255,255,255,.82); }
+.field input, .field select, .field textarea {
+  width: 100%; min-height: 3.25rem; border: 1px solid transparent; border-radius: var(--radius);
+  background: rgba(255,255,255,.1); color: var(--white); padding: 0 var(--s-4); font-size: 1rem;
+  transition: border-color var(--dur-ui) var(--ease-out), background-color var(--dur-ui) var(--ease-out);
+}
+.field textarea { padding: var(--s-3) var(--s-4); resize: vertical; min-height: 6rem; }
+.field select option { color: var(--black); }
+.field input::placeholder, .field textarea::placeholder { color: rgba(255,255,255,.55); }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--brand-light); background: rgba(255,255,255,.14); }
+.field [aria-invalid="true"] { border-color: #ff8a80; }
+.err { font-size: var(--step-0); color: #ffb4ab; }
+.err:empty { display: none; }
+.submit {
+  margin-top: var(--s-2); width: 100%; min-height: 3.5rem; border-radius: var(--radius);
+  background: var(--white); color: var(--brand-deep); font-weight: 500;
+  transition: background-color var(--dur-ui) var(--ease-out), color var(--dur-ui) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.submit:active { transform: scale(0.98); }
+.submit:disabled { opacity: .75; cursor: progress; }
+@media (hover: hover) and (pointer: fine) { .submit:hover:not(:disabled) { background: var(--brand-light); color: var(--white); } }
+.done { display: grid; gap: var(--s-3); }
+.done[hidden] { display: none; }
+.done h3 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); letter-spacing: -0.02em; margin: 0; }
+
+/* ---------- Footer ---------- */
+.foot { background: var(--brand); color: var(--white); min-height: 80svh; display: flex; flex-direction: column; padding: 2.5rem var(--margin) var(--s-5); }
+.foot-top { display: flex; justify-content: space-between; gap: var(--s-6); font-size: var(--step-0); }
+.foot-notes { display: grid; gap: var(--s-1); max-width: 34rem; }
+.foot-notes .brandline { display: inline-flex; align-items: center; gap: var(--s-2); font-weight: 500; margin-bottom: var(--s-2); }
+.foot a { text-underline-offset: 4px; }
+.foot-mail {
+  margin-top: auto; padding-top: var(--s-9); display: block; text-decoration: none;
+  font-family: var(--font-display); font-weight: 700; font-size: clamp(3rem, 10.4vw, 12rem); line-height: 0.9; letter-spacing: -0.045em;
+  transition: color var(--dur-ui) var(--ease-out);
+}
+.foot-mail span { display: inline-block; }
+.foot-bar { margin-top: var(--s-7); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-5); font-size: var(--step-0); align-items: end; }
+.foot-links { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-5); }
+.foot-credits summary { cursor: pointer; text-decoration: underline; text-underline-offset: 4px; width: fit-content; min-height: 2.75rem; display: flex; align-items: center; }
+.foot-credits ul { margin-top: var(--s-2); display: grid; gap: var(--s-1); }
+.foot-end { text-align: right; display: grid; justify-items: end; gap: var(--s-1); }
+.text-btn { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 2.75rem; text-decoration: underline; text-underline-offset: 4px; }
+.text-btn svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) and (pointer: fine) { .foot-mail:hover { color: var(--night); } }
+@media (max-width: 899px) {
+  .foot-top { flex-direction: column; }
+  .foot-mail { font-size: 17vw; }
+  .foot-mail span { display: block; }
+  .foot-bar { grid-template-columns: 1fr; }
+  .foot-end { text-align: left; justify-items: start; }
+}
+
+/* ---------- Menu overlay ---------- */
+.menu { position: fixed; inset: 0; z-index: var(--z-menu); background: var(--night); color: var(--white); display: flex; flex-direction: column; padding: 0 var(--margin) var(--s-5); visibility: hidden; opacity: 0; transition: opacity var(--dur-ui) var(--ease-out), visibility 0s linear var(--dur-ui); }
+.menu.open { visibility: visible; opacity: 1; transition: opacity var(--dur-ui) var(--ease-out), visibility 0s; }
+.menu-top { height: var(--hdr-h); display: flex; justify-content: space-between; align-items: center; }
+.menu-nav { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--s-2); }
+.menu-nav a { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.5rem, 11vw, 4.5rem); line-height: 1.05; letter-spacing: -0.03em; text-decoration: none; align-self: flex-start; }
+.menu-bottom { display: grid; gap: var(--s-5); }
+.menu-bottom .btn { width: 100%; }
+.menu-social { display: flex; gap: var(--s-5); font-size: var(--step-0); color: var(--on-photo-soft); }
+.menu-nav a, .menu-bottom { opacity: 0; translate: 0 0.75rem; transition: opacity 150ms var(--ease-out), translate 150ms var(--ease-out); }
+.menu.open .menu-nav a, .menu.open .menu-bottom { opacity: 1; translate: none; transition-duration: 300ms; transition-delay: calc(60ms + var(--i, 0) * 40ms); }
+
+/* ---------- Booking dialog ---------- */
+.modal { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; align-items: flex-end; justify-content: center; padding: var(--s-3); visibility: hidden; transition: visibility 0s linear 250ms; }
+.modal.open { visibility: visible; transition: visibility 0s; }
+.modal-bd { position: absolute; inset: 0; background: rgba(11,22,40,.6); opacity: 0; transition: opacity 250ms var(--ease-out); }
+.modal.open .modal-bd { opacity: 1; }
+.modal-panel {
+  position: relative; width: 100%; max-width: 34rem; max-height: 92svh; overflow-y: auto;
+  background: var(--brand-deep); color: var(--white); border-radius: var(--radius); padding: var(--s-6) var(--s-5);
+  box-shadow: 0 2rem 5rem rgba(11,22,40,.45); /* taste-skill-ignore: the dialog floats */
+  opacity: 0; transform: translateY(1.5rem); transition: opacity 250ms var(--ease-out), transform 250ms var(--ease-out);
+}
+.modal:not(.open) .modal-panel, .modal:not(.open) .modal-bd { transition-duration: 180ms; }
+.modal.open .modal-panel { opacity: 1; transform: none; }
+.modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-4); margin-bottom: var(--s-5); }
+.modal-head h2 { font-family: var(--font-display); font-weight: 700; font-size: var(--step-2); line-height: 1; letter-spacing: -0.02em; }
+.modal-head p { margin-top: var(--s-2); color: var(--on-photo-soft); font-size: var(--step-0); }
+.modal .icon-btn { margin: -0.5rem -0.5rem 0 0; }
+@media (min-width: 640px) {
+  .modal { align-items: center; padding: var(--s-5); }
+  .modal-panel { padding: var(--s-7); transform: translateY(0.75rem) scale(0.98); }
+}
+
+/* ---------- Reveal on scroll ---------- */
+.js [data-reveal] { opacity: 0; translate: 0 1.75rem; transition: opacity var(--dur-enter) var(--ease-out), translate var(--dur-enter) var(--ease-out); transition-delay: var(--d, 0ms); }
+.js [data-reveal].in { opacity: 1; translate: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal], .menu-nav a, .menu-bottom { translate: none; }
+  .ticker-track { animation: none; }
+  .hero .photo-bg img, .chapters-media img, .place img, .view, .quote { transform: none !important; }
+  .step[aria-selected="true"] .step-bar, .dots button[aria-current="true"] i::after { animation: none; transform: scaleX(1); }
+  .bcard-inner, .modal-panel, .hdr { transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-mark" viewBox="0 0 24 24"><path d="M1.26 10.74 12 1.7l10.74 9.04" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="7.9" r="1.4" fill="#b0251f"/><path d="M5.77 13.55h2.84v3.66h6.78v-3.66h2.84v10.22h-2.84v-3.69H8.61v3.69H5.77z" fill="currentColor"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></symbol>
+</svg>
+
+<div class="progress" aria-hidden="true"></div>
+
+<header class="hdr">
+  <a class="hdr-brand" href="#top" aria-label="Hyttero, back to top"><svg class="mark" aria-hidden="true"><use href="#i-mark"/></svg>Hyttero</a>
+  <nav class="hdr-nav" aria-label="Sections">
+    <a href="#how">How it works</a>
+    <a href="#storm">Storms</a>
+    <a href="#services">Services</a>
+    <a href="#coast">Coast</a>
+    <a href="#prices">Prices</a>
+  </nav>
+  <div class="hdr-right">
+    <a class="btn light" href="#contact" data-open-modal>Book a walk-through</a>
+    <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to dark mode"><svg class="ico-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="ico-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    <button class="icon-btn burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
+  </div>
+</header>
+
+<!-- ===================== Hero ===================== -->
+<section class="hero on-photo" id="top" aria-labelledby="hero-title">
+  <div class="photo-bg" aria-hidden="true">
+    <div class="drift" data-parallax="0.12">
+      <img class="is-on" data-area="home" src="images/hero-campfire.jpg" alt="" width="1376" height="768" fetchpriority="high">
+      <img data-area="sotra" src="assets/panoramasotranese.jpg" alt="" width="1024" height="454" loading="lazy">
+      <img data-area="oygarden" src="assets/ygarden.jpg" alt="" width="1023" height="658" loading="lazy">
+      <img data-area="hardanger" src="assets/ulvik-hardanger-hardanger-fjord-norway-loc-3174180069.jpg" alt="" width="1024" height="756" loading="lazy">
+      <img data-area="stord" src="assets/sunnhordlandfraasunde.jpg" alt="" width="1920" height="1277" loading="lazy">
+    </div>
+  </div>
+  <div class="wrap hero-inner">
+    <div>
+      <h1 id="hero-title" data-reveal>Cabin keepers for the stormy coast</h1>
+      <p class="hero-lede" data-reveal>Local keepers check, fix and photograph your cabin on the Norwegian west coast while you're away.</p>
+      <div class="hero-actions" data-reveal>
+        <a class="btn light" href="#contact" data-open-modal>Book a walk-through<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="tlink" href="#how">See how a visit works</a>
+      </div>
+    </div>
+    <div class="coast-pick" data-reveal>
+      <h2>Where is your cabin?</h2>
+      <div class="chips" role="group" aria-label="Coast area">
+        <button class="chip" type="button" aria-pressed="false" data-pick="sotra">Sotra</button>
+        <button class="chip" type="button" aria-pressed="false" data-pick="oygarden">Øygarden</button>
+        <button class="chip" type="button" aria-pressed="false" data-pick="hardanger">Hardanger</button>
+        <button class="chip" type="button" aria-pressed="false" data-pick="stord">Stord</button>
+      </div>
+      <p class="wx-line" aria-live="polite"><b data-wx-temp>3°C</b><span data-wx-text>Sotra now: wind NW 14 m/s. Storm call-out within 2 hours.</span></p>
+      <p class="credit" data-hero-credit>Photo: Hyttero</p>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>Sotra</span><span>Øygarden</span><span>Hardanger</span><span>Sunnhordland</span><span>Stord</span><span>Bergen</span>
+    <span>Sotra</span><span>Øygarden</span><span>Hardanger</span><span>Sunnhordland</span><span>Stord</span><span>Bergen</span>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- ===================== How it works ===================== -->
+  <section id="how" aria-labelledby="how-title">
+    <div class="wrap how">
+      <div>
+        <h2 class="h2" id="how-title" data-reveal>One visit, one report</h2>
+        <p class="lede" data-reveal>From Bergen locals to owners in Rotterdam and Hamburg, people trust us with their keys because they see every visit on their phone.</p>
+        <div class="steps" role="tablist" aria-label="How a visit works" data-reveal>
+          <button class="step" type="button" role="tab" id="tab-1" aria-controls="view-1" aria-selected="true">
+            <h3>The walk-through</h3>
+            <p>We meet you at the cabin, or on a video call, and agree what to check and how often.</p>
+            <i class="step-bar" aria-hidden="true"></i>
+          </button>
+          <button class="step" type="button" role="tab" id="tab-2" aria-controls="view-2" aria-selected="false" tabindex="-1">
+            <h3>The visits</h3>
+            <p>Your keeper checks doors, windows, roof, heating and water, and fixes the small things on the spot.</p>
+            <i class="step-bar" aria-hidden="true"></i>
+          </button>
+          <button class="step" type="button" role="tab" id="tab-3" aria-controls="view-3" aria-selected="false" tabindex="-1">
+            <h3>The report</h3>
+            <p>Photos and notes land on your phone before your keeper has left the driveway.</p>
+            <i class="step-bar" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- An example of the Hyttero report on an owner's phone. -->
+      <div class="phone" data-ui data-reveal>
+        <div class="screen">
+          <div class="screen-bar" aria-hidden="true"><span>07:41</span><span>Hyttero</span></div>
+          <div class="view is-on" id="view-1" role="tabpanel" aria-labelledby="tab-1">
+            <p class="app-title">Walk-through booked</p>
+            <p class="app-sub">Your cabin on Sotra</p>
+            <div class="card-ui">
+              <p><b>October</b></p>
+              <div class="cal" aria-hidden="true">
+                <span>13</span><span>14</span><span>15</span><span class="on">16</span><span>17</span><span>18</span><span>19</span>
+              </div>
+              <p style="margin-top:.75rem">Thursday 16 October, 10:00, with Ingrid Haugland.</p>
+            </div>
+            <div class="card-ui pic"><img src="images/keeper-door.jpg" alt="Ingrid at the cabin door" width="896" height="1200" loading="lazy"></div>
+          </div>
+          <div class="view" id="view-2" role="tabpanel" aria-labelledby="tab-2" hidden>
+            <p class="app-title">Visit in progress</p>
+            <p class="app-sub">Ingrid is at your cabin</p>
+            <ul class="checks">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Doors and windows</span><em>locked</em></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Heating</span><em>12°C</em></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Water</span><em>off</em></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Roof and gutters</span><em>clear</em></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Boat and jetty</span><em>tied</em></li>
+            </ul>
+          </div>
+          <div class="view" id="view-3" role="tabpanel" aria-labelledby="tab-3" hidden>
+            <p class="app-title">Visit report</p>
+            <p class="app-sub">Tuesday 14 October, 07:12</p>
+            <div class="shots">
+              <img src="images/interior-check.jpg" alt="The living room, tidy and warm" width="1200" height="896" loading="lazy">
+              <img src="images/winter-hytte.jpg" alt="The path to the cabin, cleared" width="1200" height="896" loading="lazy">
+              <img src="images/cabin-bluehour.jpg" alt="The cabin from outside in the evening" width="928" height="1152" loading="lazy">
+              <img src="images/cabin-fjord.jpg" alt="The jetty and the fjord below the cabin" width="896" height="1200" loading="lazy">
+            </div>
+            <div class="toast-ui"><b>All fine at your cabin</b>6 photos and 5 checks from Ingrid</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Storm ===================== -->
+  <!-- Wind levels and responses are draft copy: confirm with the owners. -->
+  <section id="storm" class="on-photo" aria-labelledby="storm-title">
+    <div class="photo-bg left" aria-hidden="true"><div class="drift" data-parallax="0.15"><img src="assets/ygarden.jpg" alt="" width="1023" height="658" loading="lazy"></div></div>
+    <div class="storm-dark" aria-hidden="true"></div>
+    <canvas class="rain" aria-hidden="true"></canvas>
+    <div class="wrap storm-inner">
+      <div>
+        <h2 class="h2" id="storm-title" data-reveal>When the storm comes in</h2>
+        <p class="lede" data-reveal>Drag the wind and see what your keeper does at each strength.</p>
+        <div class="wind" data-reveal>
+          <label for="wind">Wind speed on the coast</label>
+          <input id="wind" type="range" min="0" max="35" step="1" value="14" aria-describedby="level-text">
+          <div class="wind-scale" aria-hidden="true"><span>Calm</span><span>Gale</span><span>Storm</span></div>
+        </div>
+      </div>
+      <div data-reveal>
+        <p class="readout" aria-hidden="true"><span data-wind-val>14</span><small>m/s</small></p>
+        <div class="level" data-level aria-live="polite">
+          <h3 data-level-name>Strong breeze</h3>
+          <p id="level-text" data-level-text>Your keeper checks shutters, the boat and anything loose outside on the next visit.</p>
+        </div>
+      </div>
+    </div>
+    <p class="credit">Øygarden. Photo: Ben Andreas Harding, CC BY-SA 2.0</p>
+  </section>
+
+  <!-- ===================== Services ===================== -->
+  <section id="services" aria-labelledby="services-title">
+    <div class="chapters">
+      <div class="chapters-text">
+        <h2 class="h2" id="services-title" data-reveal>Care for every season</h2>
+        <article class="chapter">
+          <figure class="chapter-pic"><img src="images/keeper-door.jpg" alt="A keeper checking the front door of a coastal cabin" width="896" height="1200" loading="lazy"></figure>
+          <h3>Regular supervision</h3>
+          <p>Doors, windows, roof, heating and water, checked weekly or monthly, with a photo report after every visit.</p>
+          <a class="tlink" href="#contact" data-open-modal>Book a walk-through<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </article>
+        <article class="chapter">
+          <figure class="chapter-pic"><img src="images/cabin-bluehour.jpg" alt="A timber cabin in deep snow on a winter evening" width="928" height="1152" loading="lazy"></figure>
+          <h3>Storm and alarm call-outs</h3>
+          <p>When your alarm goes off or a storm comes through, we drive out within two hours and tell you exactly what we found.</p>
+          <a class="tlink" href="#contact" data-open-modal>Book a walk-through<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </article>
+        <article class="chapter">
+          <figure class="chapter-pic"><img src="assets/cabin-near-ulriken-bergen-norway-2009-1.jpg" alt="A red cabin by a frozen lake in the snow, near Ulriken in Bergen" width="1920" height="1277" loading="lazy"><p class="credit">Near Ulriken, Bergen. Photo: Sveter, CC BY-SA 3.0</p></figure>
+          <h3>Winter care</h3>
+          <p>Snow off the roof and path, pipes protected, frost guard checked, and the heat turned up before you arrive.</p>
+          <a class="tlink" href="#contact" data-open-modal>Book a walk-through<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </article>
+        <article class="chapter">
+          <figure class="chapter-pic"><img src="images/interior-check.jpg" alt="A tidy cabin living room ready for guests" width="1200" height="896" loading="lazy"></figure>
+          <h3>Rental hand-overs</h3>
+          <p>Keys for your guests, a check after they leave, and cleaning booked between stays.</p>
+          <a class="tlink" href="#contact" data-open-modal>Book a walk-through<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </article>
+      </div>
+      <div class="chapters-media">
+        <img class="is-on" src="images/keeper-door.jpg" alt="A keeper checking the front door of a coastal cabin" width="896" height="1200" loading="lazy">
+        <img src="images/cabin-bluehour.jpg" alt="A timber cabin in deep snow on a winter evening" width="928" height="1152" loading="lazy">
+        <img src="assets/cabin-near-ulriken-bergen-norway-2009-1.jpg" alt="A red cabin by a frozen lake in the snow, near Ulriken in Bergen" width="1920" height="1277" loading="lazy">
+        <img src="images/interior-check.jpg" alt="A tidy cabin living room ready for guests" width="1200" height="896" loading="lazy">
+        <p class="credit" data-chapter-credit>Near Ulriken, Bergen. Photo: Sveter, CC BY-SA 3.0</p>
+        <div class="chapters-index" aria-label="Jump to a service">
+          <button type="button" data-goto="0" aria-current="true">Supervision</button>
+          <button type="button" data-goto="1" aria-current="false">Call-outs</button>
+          <button type="button" data-goto="2" aria-current="false">Winter</button>
+          <button type="button" data-goto="3" aria-current="false">Rentals</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Coast ===================== -->
+  <!-- Area descriptions for Sotra and Sunnhordland are draft copy: confirm with the owners. -->
+  <section id="coast" aria-labelledby="coast-title">
+    <div class="wrap coast-head">
+      <div>
+        <h2 class="h2" id="coast-title" data-reveal>From fjord to open ocean</h2>
+        <p class="lede" data-reveal>Drag, swipe or use the arrows to travel the coast we cover.</p>
+      </div>
+      <div class="coast-ctrl" data-reveal>
+        <button class="round-btn" type="button" data-coast-prev aria-label="Previous place"><span class="flip-x"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span></button>
+        <button class="round-btn" type="button" data-coast-next aria-label="Next place"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+      </div>
+    </div>
+    <div class="track" tabindex="0" role="region" aria-label="Places we cover" data-reveal>
+      <article class="place">
+        <img src="assets/ulvik-hardanger-hardanger-fjord-norway-loc-3174180069.jpg" alt="An old colour print of Ulvik village on the Hardanger fjord" width="1024" height="756" loading="lazy" draggable="false">
+        <h3>Hardanger fjord</h3>
+        <p>Quiet holiday homes deep in the fjord, kept warm and ready for your arrival.</p>
+        <p class="credit">Ulvik, around 1890. Photochrom, Library of Congress.</p>
+      </article>
+      <article class="place">
+        <img src="assets/sunnhordlandfraasunde.jpg" alt="Islands and a passing boat in the sound, with snow on the hills" width="1920" height="1277" loading="lazy" draggable="false">
+        <h3>Sunnhordland and Stord</h3>
+        <p>Holiday homes along the southern sounds, visited on the same weekly round.</p>
+        <p class="credit">Photo: Jostein Røstbø, CC BY-SA 3.0</p>
+      </article>
+      <article class="place">
+        <img src="assets/panoramasotranese.jpg" alt="Sotra from above: heather, lakes and rocky islands out to the sea" width="1024" height="454" loading="lazy" draggable="false">
+        <h3>Sotra</h3>
+        <p>Where Hyttero is based. Rocky inlets, short drives, and a cabin on almost every bay.</p>
+        <p class="credit">Photo: Wikimedia Commons contributor, CC BY-SA 2.5</p>
+      </article>
+      <article class="place">
+        <img src="images/hero-campfire.jpg" alt="A red cabin on bare coastal rocks with the ocean behind" width="1376" height="768" loading="lazy" draggable="false">
+        <h3>Øygarden islands</h3>
+        <p>Exposed cabins on the outer islands, where the winter storms arrive first.</p>
+        <p class="credit">Photo: Hyttero</p>
+      </article>
+    </div>
+    <div class="track-bar" aria-hidden="true"><i></i></div>
+  </section>
+
+  <!-- ===================== Owners ===================== -->
+  <!-- images/owners/together.jpg is still a placeholder (a misty rock face): replace it. Bios in [brackets] and contact details are waiting for the owners' own text. -->
+  <section id="owners" class="on-photo" aria-labelledby="owners-title">
+    <div class="photo-bg left" aria-hidden="true"><div class="drift" data-parallax="0.1"><img src="images/owners/together.jpg" alt="" width="2100" height="900" loading="lazy" style="object-position: 80% 50%"></div></div>
+    <div class="wrap owners">
+      <div>
+        <h2 class="h2" id="owners-title" data-reveal>The people behind Hyttero</h2>
+        <p class="lede" data-reveal>Two owners, one phone number, and a team of local keepers who live on the islands they look after.</p>
+      </div>
+      <div class="owner-cards">
+        <article class="owner" data-reveal>
+          <div class="bcard">
+            <div class="bcard-inner">
+              <div class="bcard-face bcard-front">
+                <div class="bcard-photo"><img src="images/owners/max.jpg" alt="Portrait of Max Hartmann" width="900" height="1600" loading="lazy"></div>
+                <svg class="mark bcard-logo" aria-hidden="true"><use href="#i-mark"/></svg>
+                <div class="bcard-info">
+                  <h3>Max Hartmann</h3>
+                  <p class="bcard-role">Co-founder</p>
+                  <button class="bcard-flip" type="button" aria-label="Show contact details for Max Hartmann">Contact details<svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+                </div>
+              </div>
+              <div class="bcard-face bcard-back" inert>
+                <svg class="mark bcard-logo" aria-hidden="true"><use href="#i-mark"/></svg>
+                <p class="bcard-name">Max Hartmann, co-founder</p>
+                <dl class="bcard-contact">
+                  <div><dt>Email</dt><dd><a href="mailto:max@hyttero.no">max@hyttero.no</a></dd></div>
+                  <div><dt>Phone</dt><dd><a href="tel:+4755000000">+47 55 00 00 00</a></dd></div>
+                  <div><dt>LinkedIn</dt><dd><a href="#" rel="noopener">Max on LinkedIn</a></dd></div>
+                </dl>
+                <button class="bcard-flip" type="button" aria-label="Show the front of Max Hartmann's card"><span class="flip-x"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span>Back</button>
+              </div>
+            </div>
+          </div>
+          <p>[Max's bio: two sentences in first person, up to 25 words, on why Hyttero started.]</p>
+        </article>
+        <article class="owner" data-reveal>
+          <div class="bcard">
+            <div class="bcard-inner">
+              <div class="bcard-face bcard-front">
+                <div class="bcard-photo"><img src="images/owners/luca.jpg" alt="Portrait of Luca Bonsangue" width="900" height="1600" loading="lazy"></div>
+                <svg class="mark bcard-logo" aria-hidden="true"><use href="#i-mark"/></svg>
+                <div class="bcard-info">
+                  <h3>Luca Bonsangue</h3>
+                  <p class="bcard-role">Co-founder</p>
+                  <button class="bcard-flip" type="button" aria-label="Show contact details for Luca Bonsangue">Contact details<svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+                </div>
+              </div>
+              <div class="bcard-face bcard-back" inert>
+                <svg class="mark bcard-logo" aria-hidden="true"><use href="#i-mark"/></svg>
+                <p class="bcard-name">Luca Bonsangue, co-founder</p>
+                <dl class="bcard-contact">
+                  <div><dt>Email</dt><dd><a href="mailto:luca@hyttero.no">luca@hyttero.no</a></dd></div>
+                  <div><dt>Phone</dt><dd><a href="tel:+4755000000">+47 55 00 00 00</a></dd></div>
+                  <div><dt>LinkedIn</dt><dd><a href="#" rel="noopener">Luca on LinkedIn</a></dd></div>
+                </dl>
+                <button class="bcard-flip" type="button" aria-label="Show the front of Luca Bonsangue's card"><span class="flip-x"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span>Back</button>
+              </div>
+            </div>
+          </div>
+          <p>[Luca's bio: two sentences in first person, up to 25 words, on why Hyttero started.]</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Reviews ===================== -->
+  <section id="reviews" class="on-photo" aria-labelledby="reviews-title">
+    <div class="photo-bg" aria-hidden="true"><div class="drift" data-parallax="0.12"><img src="assets/lighthouse-on-the-norwegian-coast.jpg" alt="" width="1920" height="1584" loading="lazy"></div></div>
+    <div class="wrap quotes" data-quotes>
+      <h2 class="h2" id="reviews-title" data-reveal>Owners who sleep at night</h2>
+      <div class="quote-stage" data-reveal>
+        <figure class="quote is-on">
+          <blockquote><p>Getting Ingrid's photos after the autumn storms means we actually sleep at night.</p></blockquote>
+          <figcaption><b>Marieke Visser</b><span>Owner in Øygarden, lives in Rotterdam</span></figcaption>
+        </figure>
+        <figure class="quote" aria-hidden="true">
+          <blockquote><p>They found a frozen pipe in January before it burst. That one visit paid for the whole year.</p></blockquote>
+          <figcaption><b>Kjell Andersen</b><span>Cabin owner, Bergen</span></figcaption>
+        </figure>
+        <figure class="quote" aria-hidden="true">
+          <blockquote><p>We rent our place out all summer. Keys, guests and cleaning are handled without us lifting a finger.</p></blockquote>
+          <figcaption><b>Anna Schmidt</b><span>Holiday home owner, Hamburg</span></figcaption>
+        </figure>
+      </div>
+      <div class="quote-ctrl" data-reveal>
+        <button class="round-btn" type="button" data-quote-prev aria-label="Previous review"><span class="flip-x"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span></button>
+        <button class="round-btn" type="button" data-quote-next aria-label="Next review"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        <div class="dots">
+          <button type="button" aria-label="Review 1" aria-current="true"><i></i></button>
+          <button type="button" aria-label="Review 2" aria-current="false"><i></i></button>
+          <button type="button" aria-label="Review 3" aria-current="false"><i></i></button>
+        </div>
+      </div>
+      <p class="credit">Peder Balke, Lighthouse on the Norwegian Coast, 1855. Public domain.</p>
+    </div>
+  </section>
+
+  <!-- ===================== Prices ===================== -->
+  <!-- SAMPLE PRICES: every amount below is a placeholder. Replace before launch. -->
+  <section id="prices" aria-labelledby="prices-title">
+    <div class="wrap prices">
+      <div>
+        <h2 class="h2" id="prices-title" data-reveal>What it costs</h2>
+        <p class="lede" data-reveal>One monthly plan, then add what your cabin needs. Tick an option to see it on the bill.</p>
+        <fieldset class="options" data-reveal>
+          <legend>Add to regular supervision</legend>
+          <label class="opt"><input type="checkbox" name="opt" value="winter" data-price="790"><span>Winter care, November to March</span><span>+ 790</span></label>
+          <label class="opt"><input type="checkbox" name="opt" value="storm" data-price="390"><span>Storm and alarm call-out cover</span><span>+ 390</span></label>
+          <label class="opt"><input type="checkbox" name="opt" value="rental" data-price="1190"><span>Rental hand-overs, up to four a month</span><span>+ 1 190</span></label>
+        </fieldset>
+        <a class="btn" href="#contact" data-open-modal data-reveal>Book a walk-through</a>
+      </div>
+      <div class="receipt-scene" data-reveal>
+        <div class="photo-bg" aria-hidden="true"><img src="images/winter-hytte.jpg" alt="" width="1200" height="896" loading="lazy"></div>
+        <div class="receipt" aria-live="polite">
+          <h3>Hyttero</h3>
+          <p class="receipt-sub">Your monthly plan</p>
+          <ul>
+            <li><span>Regular supervision, 2 visits</span><span>1 490</span></li>
+            <li data-row="winter" hidden><span>Winter care</span><span>790</span></li>
+            <li data-row="storm" hidden><span>Call-out cover</span><span>390</span></li>
+            <li data-row="rental" hidden><span>Rental hand-overs</span><span>1 190</span></li>
+          </ul>
+          <div class="receipt-total"><span>NOK per month</span><b data-total>1 490</b></div>
+          <p class="receipt-note">Including VAT. The walk-through is how we agree the final plan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Contact ===================== -->
+  <section id="contact" class="on-photo" aria-labelledby="contact-title">
+    <div class="photo-bg left" aria-hidden="true"><div class="drift" data-parallax="0.1"><img src="images/interior-check.jpg" alt="" width="1200" height="896" loading="lazy"></div></div>
+    <div class="wrap contact">
+      <div>
+        <h2 class="h2" id="contact-title" data-reveal>Come meet your keeper</h2>
+        <p class="lede" data-reveal>Leave your details and we'll call you within one working day to find a time, in English, Norwegian, German or Dutch.</p>
+        <div class="contact-lines" data-reveal>
+          <a href="mailto:post@hyttero.no">post@hyttero.no</a>
+          <a href="tel:+4755000000">+47 55 00 00 00</a>
+        </div>
+      </div>
+      <div class="form-panel" data-reveal>
+        <h3>Book a walk-through</h3>
+        <!-- Demo stub: submitting never contacts a server. Wire to the real booking endpoint before launch. -->
+        <form class="cform" novalidate data-booking>
+          <div class="field"><label for="c-name">Full name</label><input id="c-name" name="name" type="text" autocomplete="name" placeholder="Ingrid Nilsen" required aria-describedby="c-name-err"><p class="err" id="c-name-err"></p></div>
+          <div class="field"><label for="c-email">Email</label><input id="c-email" name="email" type="email" autocomplete="email" placeholder="you@email.com" required aria-describedby="c-email-err"><p class="err" id="c-email-err"></p></div>
+          <div class="field"><label for="c-phone">Phone</label><input id="c-phone" name="phone" type="tel" autocomplete="tel" placeholder="+31 6 1234 5678" aria-describedby="c-phone-err"><p class="err" id="c-phone-err"></p></div>
+          <div class="field"><label for="c-area">Where is the cabin?</label>
+            <select id="c-area" name="area"><option value="">Choose an area</option><option value="sotra">Sotra</option><option value="oygarden">Øygarden</option><option value="hardanger">Hardanger</option><option value="stord">Sunnhordland and Stord</option><option value="other">Somewhere else on the coast</option></select></div>
+          <button class="submit" type="submit">Request a walk-through</button>
+        </form>
+        <div class="done" hidden aria-live="polite">
+          <h3>Request received</h3>
+          <p data-done-msg></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== Footer ===================== -->
+<footer class="foot" id="footer">
+  <div class="foot-top">
+    <div class="foot-notes">
+      <p class="brandline"><svg class="mark" aria-hidden="true"><use href="#i-mark"/></svg>Hyttero</p>
+      <p>Keepers of cabins and holiday homes on the Norwegian west coast, for locals and owners abroad.</p>
+      <p>Sotra, Vestland, Norway · <a href="tel:+4755000000">+47 55 00 00 00</a></p>
+    </div>
+    <a href="#top">Back to top</a>
+  </div>
+
+  <a class="foot-mail" href="mailto:post@hyttero.no"><span>post</span><span>@hyttero.no</span></a>
+
+  <div class="foot-bar">
+    <nav class="foot-links" aria-label="Footer">
+      <a href="#services">Services</a><a href="#prices">Prices</a><a href="#">Privacy</a><a href="#">Terms</a>
+      <a href="#">Instagram</a><a href="#">Facebook</a><a href="#">LinkedIn</a>
+    </nav>
+    <details class="foot-credits">
+      <summary>Photo credits</summary>
+      <ul>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Ulvik_Hardanger,_Hardanger_Fjord,_Norway_LOC_3174180069.jpg">Ulvik, Hardanger</a>, Library of Congress, no known restrictions</li>
+        <li><a href="https://commons.wikimedia.org/w/index.php?curid=9738642">Sunnhordland fra Sunde</a>, Jostein Røstbø, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:PanoramaSotraNese.jpg">Panorama Sotra</a>, Wikimedia Commons, <a href="https://creativecommons.org/licenses/by-sa/2.5">CC BY-SA 2.5</a></li>
+        <li><a href="https://www.flickr.com/photos/38605609@N02/4106819611">Øygarden</a>, Ben Andreas Harding, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Cabin_near_Ulriken_Bergen_Norway_2009_1.jpg">Cabin near Ulriken</a>, Sveter, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Peder_Balke_-_Lighthouse_on_the_Norwegian_Coast_-_Google_Art_Project.jpg">Lighthouse on the Norwegian Coast</a>, Peder Balke, 1855, public domain</li>
+      </ul>
+    </details>
+    <div class="foot-end">
+      <button class="text-btn" type="button" data-theme-toggle aria-label="Switch to dark mode"><svg class="ico-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="ico-sun" aria-hidden="true"><use href="#i-sun"/></svg><span data-theme-label>Dark mode</span></button>
+      <p>© 2026 Hyttero</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== Menu ===================== -->
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" inert>
+  <div class="menu-top">
+    <p class="hdr-brand"><svg class="mark" aria-hidden="true"><use href="#i-mark"/></svg>Hyttero</p>
+    <button class="icon-btn" type="button" data-close-menu aria-label="Close menu"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <nav class="menu-nav" aria-label="Menu">
+    <a href="#how">How it works</a>
+    <a href="#storm">Storms</a>
+    <a href="#services">Services</a>
+    <a href="#coast">Coast</a>
+    <a href="#owners">Owners</a>
+    <a href="#prices">Prices</a>
+  </nav>
+  <div class="menu-bottom">
+    <button class="btn light" type="button" data-menu-book>Book a walk-through</button>
+    <nav class="menu-social" aria-label="Social"><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">LinkedIn</a></nav>
+  </div>
+</div>
+
+<!-- ===================== Booking dialog ===================== -->
+<div class="modal" id="modal" inert>
+  <div class="modal-bd" data-close-modal></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <div>
+        <h2 id="modal-title">Come meet your keeper</h2>
+        <p>A walk-through takes about an hour, at the cabin or on a video call.</p>
+      </div>
+      <button class="icon-btn" type="button" data-close-modal aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <!-- Demo stub: submitting never contacts a server. -->
+    <form class="cform" novalidate data-booking>
+      <div class="field"><label for="m-name">Full name</label><input id="m-name" name="name" type="text" autocomplete="name" placeholder="Ingrid Nilsen" required aria-describedby="m-name-err"><p class="err" id="m-name-err"></p></div>
+      <div class="field"><label for="m-email">Email</label><input id="m-email" name="email" type="email" autocomplete="email" placeholder="you@email.com" required aria-describedby="m-email-err"><p class="err" id="m-email-err"></p></div>
+      <div class="field"><label for="m-phone">Phone</label><input id="m-phone" name="phone" type="tel" autocomplete="tel" placeholder="+49 151 2345 6789" aria-describedby="m-phone-err"><p class="err" id="m-phone-err"></p></div>
+      <div class="field"><label for="m-lang">Language for the call</label>
+        <select id="m-lang" name="lang"><option>English</option><option>Norsk</option><option>Deutsch</option><option>Nederlands</option></select></div>
+      <div class="field"><label for="m-msg">Tell us about your home</label><textarea id="m-msg" name="message" rows="3" placeholder="A cabin on Sotra. We visit at Easter and in July."></textarea></div>
+      <button class="submit" type="submit">Request a walk-through</button>
+    </form>
+    <div class="done" hidden aria-live="polite">
+      <h3>Request received</h3>
+      <p data-done-msg></p>
+      <button class="submit" type="button" data-close-modal>Done</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const html = document.documentElement;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const onScreen = (el, cb, opts = {}) => { const io = new IntersectionObserver((es) => es.forEach((e) => cb(e.isIntersecting, e)), opts); io.observe(el); return io; };
+
+/* ---------- Reveal on scroll: parts of a section rise in order, once ---------- */
+window.__reveal = true;
+const revealIO = new IntersectionObserver((entries) => {
+  let n = 0;
+  for (const e of entries) {
+    if (!e.isIntersecting) continue;
+    revealIO.unobserve(e.target);
+    e.target.style.setProperty('--d', Math.min(n++, 4) * 80 + 'ms');
+    e.target.classList.add('in');
+  }
+}, { rootMargin: '0px 0px -8% 0px', threshold: 0.1 });
+$$('[data-reveal]').forEach((el) => revealIO.observe(el));
+
+/* ---------- One scroll loop: progress bar, header, picture drift ---------- */
+const bar = $('.progress'), hdr = $('.hdr');
+const drifts = $$('[data-parallax]');
+let lastY = scrollY, ticking = false;
+function onScroll() {
+  const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
+  bar.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
+  hdr.classList.toggle('solid', y > innerHeight * 0.6);
+  hdr.classList.toggle('away', y > lastY + 2 && y > innerHeight * 0.6 && !hdr.contains(document.activeElement));
+  if (y < lastY - 2) hdr.classList.remove('away');
+  lastY = y;
+  if (!REDUCED) for (const el of drifts) {
+    const r = el.parentElement.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) continue;
+    const lim = r.height * 0.1; // stays inside the 12% overhang
+    const off = Math.max(-lim, Math.min(lim, (r.top + r.height / 2 - innerHeight / 2) * -Number(el.dataset.parallax)));
+    el.style.transform = `translate3d(0, ${off.toFixed(1)}px, 0)`;
+  }
+  ticking = false;
+}
+addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+onScroll();
+
+/* Current section in the header navigation */
+const navLinks = $$('.hdr-nav a');
+navLinks.forEach((a) => onScreen(document.querySelector(a.getAttribute('href')), (on) => {
+  if (on) navLinks.forEach((l) => l.setAttribute('aria-current', String(l === a)));
+}, { rootMargin: '-45% 0px -45% 0px' }));
+
+/* ---------- Hero: pick a coast, the picture and conditions follow (sample values; wire to MET Norway before launch) ---------- */
+const AREAS = {
+  sotra:     { temp: '3°C',  text: 'Sotra now: wind NW 14 m/s. Storm call-out within 2 hours.', credit: 'Sotra. Photo: Wikimedia Commons contributor, CC BY-SA 2.5' },
+  oygarden:  { temp: '2°C',  text: 'Øygarden now: wind W 19 m/s. Your keeper is watching the forecast.', credit: 'Øygarden. Photo: Ben Andreas Harding, CC BY-SA 2.0' },
+  hardanger: { temp: '−1°C', text: 'Hardanger now: calm and frosty. Frost guards checked this week.', credit: 'Ulvik, Hardanger, around 1890. Library of Congress' },
+  stord:     { temp: '4°C',  text: 'Stord now: wind SW 11 m/s. Weekly round on Thursday.', credit: 'Sunnhordland. Photo: Jostein Røstbø, CC BY-SA 3.0' },
+};
+const heroImgs = $$('.hero .photo-bg img');
+const chips = $$('[data-pick]');
+function pickArea(key) {
+  chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.pick === key)));
+  heroImgs.forEach((img) => img.classList.toggle('is-on', img.dataset.area === key));
+  const a = AREAS[key];
+  $('[data-wx-temp]').textContent = a.temp;
+  $('[data-wx-text]').textContent = a.text;
+  $('[data-hero-credit]').textContent = a.credit;
+  const sel = $('#c-area'); if (sel && !sel.value) sel.value = key; // carry the choice into the booking form
+}
+chips.forEach((c) => c.addEventListener('click', () => pickArea(c.dataset.pick)));
+
+/* ---------- How it works: steps are tabs; they also play by themselves while on screen ---------- */
+const tabs = $$('.step'), views = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')));
+const stepsEl = $('.steps');
+const CYCLE = 6000;
+stepsEl.style.setProperty('--cycle', CYCLE + 'ms');
+let step = 0, stepTimer = null, autoplay = !REDUCED, howVisible = false, viewTimers = [];
+function playView(i) {
+  viewTimers.forEach(clearTimeout); viewTimers = [];
+  const v = views[i];
+  if (i === 1) {
+    const items = $$('.checks li', v); items.forEach((li) => li.classList.remove('done'));
+    items.forEach((li, k) => viewTimers.push(setTimeout(() => li.classList.add('done'), REDUCED ? 0 : 400 + k * 550)));
+  }
+  if (i === 2) {
+    const shots = $$('.shots img', v), toast = $('.toast-ui', v);
+    shots.forEach((s) => s.classList.remove('in')); toast.classList.remove('in');
+    shots.forEach((s, k) => viewTimers.push(setTimeout(() => s.classList.add('in'), REDUCED ? 0 : 300 + k * 350)));
+    viewTimers.push(setTimeout(() => toast.classList.add('in'), REDUCED ? 0 : 300 + shots.length * 350 + 300));
+  }
+}
+function selectStep(i, focus = false) {
+  step = (i + tabs.length) % tabs.length;
+  tabs.forEach((t, k) => {
+    const on = k === step;
+    t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1;
+    views[k].classList.toggle('is-on', on); views[k].hidden = !on;
+    const b = $('.step-bar', t); b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+  });
+  if (focus) tabs[step].focus();
+  playView(step);
+  schedule();
+}
+function schedule() {
+  clearTimeout(stepTimer);
+  stepsEl.classList.toggle('paused', !autoplay);
+  if (autoplay && howVisible) stepTimer = setTimeout(() => selectStep(step + 1), CYCLE);
+}
+tabs.forEach((t, k) => {
+  t.addEventListener('click', () => { autoplay = false; selectStep(k); });
+  t.addEventListener('keydown', (e) => {
+    const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    if (d) { e.preventDefault(); autoplay = false; selectStep(step + d, true); }
+  });
+});
+onScreen($('#how'), (on) => { howVisible = on; if (on) selectStep(step); else clearTimeout(stepTimer); }, { threshold: 0.35 });
+
+/* ---------- Storm: the slider sets the wind; rain, darkness and the response follow ---------- */
+const LEVELS = [
+  { max: 7,  name: 'Calm',          text: 'Your regular visit goes ahead as planned.' },
+  { max: 13, name: 'Fresh breeze',  text: 'Nothing to do yet. Your keeper notes anything loose outside on the next visit.' },
+  { max: 20, name: 'Strong breeze', text: 'Your keeper checks shutters, the boat and anything loose outside on the next visit.' },
+  { max: 24, name: 'Gale',          text: 'We watch the forecast with you and check the cabin the same day the wind drops.' },
+  { max: 99, name: 'Storm',         text: 'Call-out within 2 hours of the alarm or the storm warning, with photos of what we found.', alert: true },
+];
+const wind = $('#wind'), dark = $('.storm-dark'), canvas = $('.rain'), ctx = canvas.getContext('2d');
+let drops = [], windSpeed = Number(wind.value), rainOn = false, rainRAF = 0;
+function setWind(v) {
+  windSpeed = v;
+  $('[data-wind-val]').textContent = v;
+  const lvl = LEVELS.find((l) => v <= l.max);
+  $('[data-level-name]').textContent = lvl.name;
+  $('[data-level-text]').textContent = lvl.text;
+  $('[data-level]').classList.toggle('alert', !!lvl.alert);
+  dark.style.opacity = (0.1 + (v / 35) * 0.55).toFixed(2);
+  wind.setAttribute('aria-valuetext', `${v} metres per second, ${lvl.name}`);
+}
+wind.addEventListener('input', () => setWind(Number(wind.value)));
+setWind(windSpeed);
+function sizeCanvas() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  canvas.width = canvas.clientWidth * dpr; canvas.height = canvas.clientHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function rain() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  const want = Math.round(windSpeed * 14);
+  while (drops.length < want) drops.push({ x: Math.random() * w * 1.4 - w * 0.2, y: Math.random() * h, l: 10 + Math.random() * 18, s: 0.6 + Math.random() * 0.6 });
+  if (drops.length > want) drops.length = want;
+  const slant = windSpeed / 35 * 0.9, speed = 8 + windSpeed * 0.7;
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (const d of drops) {
+    ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - slant * d.l, d.y + d.l);
+    d.y += speed * d.s; d.x -= slant * speed * d.s;
+    if (d.y > h || d.x < -40) { d.y = -20; d.x = Math.random() * w * 1.4; }
+  }
+  ctx.stroke();
+  rainRAF = requestAnimationFrame(rain);
+}
+if (!REDUCED) {
+  onScreen($('#storm'), (on) => {
+    if (on && !rainOn) { rainOn = true; sizeCanvas(); rain(); }
+    if (!on && rainOn) { rainOn = false; cancelAnimationFrame(rainRAF); }
+  });
+  addEventListener('resize', () => { if (rainOn) sizeCanvas(); });
+}
+
+/* ---------- Services: the picture follows the chapter in view ---------- */
+const chapters = $$('.chapter'), chapterImgs = $$('.chapters-media img'), gotoBtns = $$('[data-goto]'), chapterCredit = $('[data-chapter-credit]');
+function setChapter(i) {
+  chapterImgs.forEach((img, k) => img.classList.toggle('is-on', k === i));
+  gotoBtns.forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
+  chapterCredit.classList.toggle('show', i === 2);
+}
+chapters.forEach((c, i) => onScreen(c, (on) => { if (on) setChapter(i); }, { rootMargin: '-45% 0px -45% 0px' }));
+gotoBtns.forEach((b) => b.addEventListener('click', () => chapters[Number(b.dataset.goto)].scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' })));
+
+/* ---------- Coast: drag with a mouse, swipe on touch, arrows, progress ---------- */
+const track = $('.track'), trackBar = $('.track-bar i'), prevBtn = $('[data-coast-prev]'), nextBtn = $('[data-coast-next]');
+function trackState() {
+  const max = track.scrollWidth - track.clientWidth;
+  const p = max > 0 ? track.scrollLeft / max : 0;
+  trackBar.style.transform = `scaleX(${(0.25 + p * 0.75).toFixed(3)})`;
+  prevBtn.disabled = track.scrollLeft < 4; nextBtn.disabled = track.scrollLeft > max - 4;
+}
+track.addEventListener('scroll', () => requestAnimationFrame(trackState), { passive: true });
+trackState();
+const cardStep = () => $('.place', track).offsetWidth + 16;
+prevBtn.addEventListener('click', () => track.scrollBy({ left: -cardStep(), behavior: REDUCED ? 'auto' : 'smooth' }));
+nextBtn.addEventListener('click', () => track.scrollBy({ left: cardStep(), behavior: REDUCED ? 'auto' : 'smooth' }));
+let drag = null;
+track.addEventListener('pointerdown', (e) => {
+  if (e.pointerType !== 'mouse' || e.button !== 0) return;
+  drag = { x: e.clientX, left: track.scrollLeft, moved: false, id: e.pointerId };
+});
+track.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x;
+  if (!drag.moved && Math.abs(dx) > 4) { drag.moved = true; track.classList.add('dragging'); track.setPointerCapture(drag.id); }
+  if (drag.moved) track.scrollLeft = drag.left - dx;
+});
+const endDrag = () => {
+  if (!drag) return;
+  const moved = drag.moved; drag = null;
+  if (!moved) return;
+  track.classList.remove('dragging');
+  const w = cardStep(); // settle on the nearest place
+  track.scrollTo({ left: Math.round(track.scrollLeft / w) * w, behavior: REDUCED ? 'auto' : 'smooth' });
+};
+track.addEventListener('pointerup', endDrag);
+track.addEventListener('pointercancel', endDrag);
+
+/* ---------- Owners: flip business cards on click ---------- */
+$$('.owner').forEach((el) => {
+  const card = $('.bcard', el), front = $('.bcard-front', el), back = $('.bcard-back', el);
+  const setFlipped = (on) => {
+    card.classList.toggle('is-flipped', on);
+    front.inert = on; back.inert = !on;
+    (on ? $('.bcard-contact a', back) : $('.bcard-flip', front)).focus({ preventScroll: true });
+  };
+  $$('.bcard-flip', el).forEach((btn) => btn.addEventListener('click', (e) => { e.stopPropagation(); setFlipped(!card.classList.contains('is-flipped')); }));
+  front.addEventListener('click', () => setFlipped(true));
+});
+
+/* ---------- Reviews: one at a time; plays while visible, pauses on hover or focus ---------- */
+const quotesEl = $('[data-quotes]'), quotes = $$('.quote'), dots = $$('.dots button');
+const QCYCLE = 7000;
+quotesEl.style.setProperty('--quote-cycle', QCYCLE + 'ms');
+let q = 0, qTimer = null, qVisible = false, qHold = false, qAuto = !REDUCED;
+function showQuote(i, manual = false) {
+  q = (i + quotes.length) % quotes.length;
+  quotes.forEach((el, k) => { el.classList.toggle('is-on', k === q); el.setAttribute('aria-hidden', String(k !== q)); });
+  dots.forEach((d, k) => { d.setAttribute('aria-current', String(k === q)); d.classList.toggle('seen', k < q); const bar2 = $('i', d); bar2.style.animation = 'none'; void bar2.offsetWidth; bar2.style.animation = ''; });
+  $('.quote-stage').setAttribute('aria-live', manual ? 'polite' : 'off');
+  if (manual) qAuto = false;
+  qSchedule();
+}
+function qSchedule() {
+  clearTimeout(qTimer);
+  const run = qAuto && qVisible && !qHold;
+  quotesEl.classList.toggle('paused', !run);
+  if (run) qTimer = setTimeout(() => showQuote(q + 1), QCYCLE);
+}
+$('[data-quote-prev]').addEventListener('click', () => showQuote(q - 1, true));
+$('[data-quote-next]').addEventListener('click', () => showQuote(q + 1, true));
+dots.forEach((d, k) => d.addEventListener('click', () => showQuote(k, true)));
+quotesEl.addEventListener('pointerenter', () => { qHold = true; qSchedule(); });
+quotesEl.addEventListener('pointerleave', () => { qHold = false; if (qAuto) showQuote(q); });
+quotesEl.addEventListener('focusin', () => { qHold = true; qSchedule(); });
+quotesEl.addEventListener('focusout', () => { qHold = false; qSchedule(); });
+onScreen(quotesEl, (on) => { qVisible = on; if (on) showQuote(q); else clearTimeout(qTimer); }, { threshold: 0.4 });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { clearTimeout(qTimer); clearTimeout(stepTimer); } else { qSchedule(); schedule(); } });
+
+/* ---------- Prices: ticking an option adds its row to the receipt ---------- */
+const BASE = 1490;
+const fmt = (n) => n.toLocaleString('nb-NO').replace(/ /g, ' ');
+function updateReceipt() {
+  let total = BASE;
+  $$('.options input').forEach((box) => {
+    const row = $(`[data-row="${box.value}"]`);
+    const appearing = row.hidden && box.checked;
+    row.hidden = !box.checked;
+    if (appearing && !REDUCED) row.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
+    if (box.checked) total += Number(box.dataset.price);
+  });
+  $('[data-total]').textContent = fmt(total);
+}
+$$('.options input').forEach((box) => box.addEventListener('change', updateReceipt));
+
+/* ---------- Booking forms: inline validation, sending state, confirmation ---------- */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE = /^[+()\d\s-]{6,}$/;
+function check(form) {
+  const rules = [
+    ['name', (v) => (v.trim() ? '' : 'Enter your name so we know who to ask for.')],
+    ['email', (v) => (!v.trim() ? 'Enter your email address.' : EMAIL.test(v.trim()) ? '' : 'That email address looks incomplete. Check it and try again.')],
+    ['phone', (v) => (!v.trim() || PHONE.test(v.trim()) ? '' : 'Use digits, spaces and an optional + for the country code.')],
+  ];
+  let first = null;
+  for (const [name, rule] of rules) {
+    const input = form.elements[name];
+    const msg = rule(input.value);
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    $('#' + input.getAttribute('aria-describedby')).textContent = msg;
+    if (msg && !first) first = input;
+  }
+  return first;
+}
+$$('[data-booking]').forEach((form) => {
+  const box = form.parentElement, done = $('.done', box), btn = $('.submit', form);
+  form.addEventListener('input', (e) => {
+    if (e.target.getAttribute('aria-invalid') !== 'true') return;
+    e.target.setAttribute('aria-invalid', 'false');
+    $('#' + e.target.getAttribute('aria-describedby')).textContent = '';
+  });
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const bad = check(form);
+    if (bad) { bad.focus(); return; }
+    btn.disabled = true; btn.textContent = 'Sending…';
+    const first = form.elements.name.value.trim().split(/\s+/)[0];
+    setTimeout(() => {
+      $('[data-done-msg]', done).textContent = `Thanks, ${first}. We'll call you within one working day to book your walk-through.`;
+      form.hidden = true; done.hidden = false;
+      $('h3', done).setAttribute('tabindex', '-1'); $('h3', done).focus();
+    }, 700);
+  });
+});
+function resetForm(form) {
+  const done = $('.done', form.parentElement), btn = $('.submit', form);
+  form.reset(); form.hidden = false; done.hidden = true;
+  $$('[aria-invalid]', form).forEach((i) => i.setAttribute('aria-invalid', 'false'));
+  $$('.err', form).forEach((e) => (e.textContent = ''));
+  btn.disabled = false; btn.textContent = 'Request a walk-through';
+}
+
+/* ---------- Overlays: shared focus trap and scroll lock ---------- */
+let locks = 0;
+const lock = () => { if (locks++ === 0) html.style.overflow = 'hidden'; };
+const unlock = () => { if (locks && --locks === 0) html.style.removeProperty('overflow'); };
+function trap(container, e) {
+  if (e.key !== 'Tab') return;
+  const f = $$('a[href], button:not([disabled]), input, select, textarea', container).filter((el) => !el.closest('[inert]') && !el.closest('[hidden]'));
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+
+/* ---------- Booking dialog ---------- */
+const modal = $('#modal'), modalForm = $('form', modal);
+let modalOpen = false, modalReturn = null, resetTimer = null;
+function openModal() {
+  if (modalOpen) return;
+  modalOpen = true; modalReturn = document.activeElement;
+  clearTimeout(resetTimer);
+  modal.inert = false; modal.classList.add('open');
+  lock();
+  setTimeout(() => $('#m-name').focus({ preventScroll: true }), 60);
+}
+function closeModal() {
+  if (!modalOpen) return;
+  modalOpen = false;
+  modal.classList.remove('open'); modal.inert = true;
+  unlock();
+  modalReturn?.focus?.({ preventScroll: true });
+  resetTimer = setTimeout(() => resetForm(modalForm), 300);
+}
+modal.addEventListener('keydown', (e) => trap($('.modal-panel', modal), e));
+$$('[data-close-modal]').forEach((b) => b.addEventListener('click', closeModal));
+
+/* ---------- Menu overlay ---------- */
+const menu = $('#menu'), burger = $('.burger');
+$$('.menu-nav a, .menu-bottom', menu).forEach((el, i) => el.style.setProperty('--i', i));
+let menuOpen = false;
+function openMenu() {
+  if (menuOpen) return;
+  menuOpen = true;
+  menu.inert = false; menu.classList.add('open');
+  burger.setAttribute('aria-expanded', 'true');
+  lock();
+  setTimeout(() => $('[data-close-menu]', menu).focus({ preventScroll: true }), 60);
+}
+function closeMenu(returnFocus = true) {
+  if (!menuOpen) return;
+  menuOpen = false;
+  menu.classList.remove('open'); menu.inert = true;
+  burger.setAttribute('aria-expanded', 'false');
+  unlock();
+  if (returnFocus) burger.focus({ preventScroll: true });
+}
+burger.addEventListener('click', openMenu);
+menu.addEventListener('keydown', (e) => trap(menu, e));
+$$('[data-close-menu]').forEach((b) => b.addEventListener('click', () => closeMenu()));
+$$('.menu-nav a', menu).forEach((a) => a.addEventListener('click', () => closeMenu(false)));
+$('[data-menu-book]').addEventListener('click', () => { closeMenu(); openModal(); }); // focus returns to the menu button afterwards
+
+/* ---------- Light / dark mode switch ---------- */
+const themeBtns = $$('[data-theme-toggle]');
+function applyTheme(t, save) {
+  html.dataset.theme = t;
+  const next = t === 'dark' ? 'light' : 'dark';
+  themeBtns.forEach((b) => {
+    b.setAttribute('aria-label', `Switch to ${next} mode`);
+    const label = $('[data-theme-label]', b);
+    if (label) label.textContent = next === 'dark' ? 'Dark mode' : 'Light mode';
+  });
+  if (save) { try { localStorage.setItem('hyttero-theme', t); } catch (e) {} }
+}
+applyTheme(html.dataset.theme === 'dark' ? 'dark' : 'light', false);
+themeBtns.forEach((b) => b.addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark', true)));
+
+/* ---------- Global handlers ---------- */
+document.addEventListener('click', (e) => {
+  const opener = e.target.closest('[data-open-modal]');
+  if (opener) { e.preventDefault(); openModal(); }
+});
+addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (modalOpen) closeModal(); else if (menuOpen) closeMenu();
+});
+</script>
+</body>
+</html>
